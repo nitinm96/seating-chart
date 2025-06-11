@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { useState } from "react";
 
@@ -23,19 +23,20 @@ function UpdateModal({
     setError(false);
     setErrorMessage("");
 
-    if (updatedName.length <= 3 || !updatedTable) {
-      console.log("error with user input");
+    //check if name and table number are not empty
+    if (updatedName == "" || !updatedTable) {
       setError(true);
-      setErrorMessage("input all fields");
+      setErrorMessage("Input all fields");
       return;
     }
-    console.log(id, updatedName, updatedTable, typeof updatedTable);
+    const cleanName = SanitizeName(updatedName);
+    console.log(id, cleanName, updatedTable);
 
     try {
       const response = await axios.put(
         `http://localhost:5001/api/guests/${id}`,
         {
-          fullName: updatedName,
+          fullName: cleanName,
           tableNumber: updatedTable,
         }
       );
@@ -51,6 +52,21 @@ function UpdateModal({
       console.error(error);
     }
   };
+
+  //function to santize names and have first letter uppercase for firstname and lastname
+  function SanitizeName(name) {
+    let split = name.split(" ");
+    for (let i = 0; i < split.length; i++) {
+      split[i] = split[i][0].toUpperCase() + split[i].slice(1);
+    }
+    const sanitizedName = split.join(" ");
+    return sanitizedName;
+  }
+
+  useEffect(() => {
+    setUpdatedName(guestFullname);
+    setUpdatedTable(guestTableNumber);
+  }, []);
 
   return (
     <div
@@ -71,9 +87,11 @@ function UpdateModal({
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
                   type="text"
                   id="guest_name"
-                  placeholder={guestFullname}
-                  onChange={(e) => setUpdatedName(e.target.value)}
+                  defaultValue={guestFullname}
+                  placeholder="Enter Guest Name"
+                  minLength={3}
                   required
+                  onChange={(e) => setUpdatedName(e.target.value)}
                 />
               </div>
               <div>
@@ -84,7 +102,8 @@ function UpdateModal({
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   type="number"
                   id="table_number"
-                  placeholder={guestTableNumber}
+                  placeholder="Enter Table Number"
+                  defaultValue={guestTableNumber}
                   required
                   onChange={(e) => setUpdatedTable(parseInt(e.target.value))}
                 />

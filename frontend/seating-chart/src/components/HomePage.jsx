@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import testData from "../testData/guestData.json";
 import BuildCircleIcon from "@mui/icons-material/BuildCircle";
+import SearchIcon from "@mui/icons-material/Search";
 import PasswordModal from "./PasswordModal";
 
 function HomePage() {
@@ -80,28 +81,31 @@ function HomePage() {
             closeModal={closePasswordModal}
           />
         )}
-        <div className="flex justify-center items-center bg-gray-500 text-white py-2 px-4 m-2 rounded-2xl cursor-pointer">
+        <div className="flex justify-center items-center bg-blue-500 text-white py-2 px-4 m-2 rounded-2xl hover:opacity-80 cursor-pointer">
           <BuildCircleIcon />
           <span>Admin</span>
         </div>
       </div>
 
       <div className="text-3xl my-10">LAVANYA & NITIN</div>
-      <div className="flex flex-col justify-center items-center bg-black/15 p-8 rounded-2xl mb-10">
+      <div className="flex flex-col justify-center items-center p-8 rounded-2xl mb-10">
         <div className="text-xl text-justify">
-          Please enter first and last name to find table number below:
+          Please enter your name or family name to find table number below:
         </div>
-        <form method="post" onSubmit={findGuest}>
-          <input
-            className="bg-white mt-6 border border-black pl-3 py-2 rounded w-4/5"
-            type="text"
-            name="fullName"
-            required
-            minLength={4}
-            placeholder="Enter first and last name"
-            autoFocus
-            onChange={(e) => setSearchedGuest(e.target.value)}
-          />
+        <form method="post" onSubmit={findGuest} className="mt-5 w-full">
+          <div className="flex w-full sm:w-3/4 pl-2 pr-2 py-2 border border-gray-300 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition">
+            <SearchIcon className="" htmlColor="#d1d5dc" />
+            <input
+              className="w-full outline-none"
+              type="text"
+              name="fullName"
+              required
+              minLength={4}
+              placeholder="Ex: Nitin Minhas or Minhas"
+              autoFocus
+              onChange={(e) => setSearchedGuest(e.target.value)}
+            />
+          </div>
           <button
             className="cursor-pointer py-2 px-8 mt-6 hover:opacity-90 bg-blue-400 rounded text-white"
             type="submit"
@@ -113,17 +117,15 @@ function HomePage() {
 
       {/* display searched items */}
       {searchedOutput.length != 0 && (
-        <div className="w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8 mb-10">
+        <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm mb-10  p-4">
           <div className="flex items-center justify-between mb-4">
-            <h5 className="text-xl font-bold leading-none text-gray-900">
-              Guest Name
-            </h5>
+            <div className="font-bold">Guest Name</div>
             <div className="font-bold">Table Number</div>
           </div>
           <div className="">
-            <ul role="list" className="divide-y divide-gray-200 ">
+            <ul className="divide-y divide-gray-200 ">
               {searchedOutput.map((guest, index) => (
-                <li key={index} className="py-3 sm:py-4">
+                <li key={index} className="py-3">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0 ms-1">
                       <p className="text-md text-gray-900">

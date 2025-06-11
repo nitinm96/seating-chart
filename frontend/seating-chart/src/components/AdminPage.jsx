@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import GuestCard from "./GuestCard";
 import testData from "../testData/guestData.json";
 import AddGuestModal from "./AddGuestModal";
@@ -103,23 +104,27 @@ function AdminPage() {
             closeModal={closeAddGuestModal}
           />
         )}
-        <input
-          className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          placeholder="Enter Guest Name or Table Number"
-          minLength={4}
-          required
-          autoFocus
-          type="text"
-          onChange={(e) => findGuest(e.target.value)}
-        />
+
+        <div className="flex w-full sm:w-1/3 pl-2 pr-2 py-2 border border-gray-300 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition">
+          <SearchIcon className="" htmlColor="#d1d5dc" />
+          <input
+            className="w-full bg-transparent outline-none"
+            placeholder="Enter Guest Name or Table Number"
+            minLength={4}
+            required
+            autoFocus
+            type="text"
+            onChange={(e) => findGuest(e.target.value)}
+          />
+        </div>
       </div>
 
       <div>Total Guest Count: {error ? 0 : allGuestData.length}</div>
 
-      <div className="flex justify-between items-center px-4 py-2 border-b-2 border-blue-500 font-bold text-white bg-blue-500 w-full">
+      <div className="flex justify-between items-center p-4 font-medium bg-gray-300 mt-4 w-full">
         <span className="w-1/3">Full Name</span>
         <span className="w-1/6 text-center">Table</span>
-        <span className="w-1/6 text-right">Edit / Delete</span>
+        <span className="w-1/6 text-right">Action</span>
       </div>
       <div>
         {error ? (
