@@ -14,8 +14,6 @@ function UpdateModal({
   closeModal,
   refreshData,
 }) {
-  const [updatedName, setUpdatedName] = useState("");
-  const [updatedTable, setUpdatedTable] = useState();
   const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
   const editGuest = async (id) => {
@@ -23,22 +21,25 @@ function UpdateModal({
     dispatch({ type: ACTION_TYPES.RESET });
 
     //check if name and table number are not empty
-    if (updatedName == "" || !updatedTable) {
+    const fullName = state.guestName;
+    const cleanTableNumber = parseInt(state.tableNumber);
+
+    if (fullName == "" || !cleanTableNumber) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
         payload: { error: "Input all fields" },
       });
       return;
     }
-    const cleanName = SanitizeName(updatedName);
-    console.log(id, cleanName, updatedTable);
+    const cleanName = SanitizeName(fullName);
+    console.log(id, cleanName, cleanTableNumber);
 
     try {
       const response = await axios.put(
         `http://localhost:5001/api/guests/${id}`,
         {
           fullName: cleanName,
-          tableNumber: updatedTable,
+          tableNumber: cleanTableNumber,
         }
       );
       console.log(response);
@@ -66,10 +67,21 @@ function UpdateModal({
   }
 
   useEffect(() => {
-    setUpdatedName(guestFullname);
-    setUpdatedTable(guestTableNumber);
+    dispatch({
+      type: ACTION_TYPES.SET_GUEST_DATA,
+      payload: {
+        guestName: guestFullname,
+        tableNumber: parseInt(guestTableNumber),
+      },
+    });
   }, []);
 
+  const handleInput = (e) => {
+    dispatch({
+      type: ACTION_TYPES.CHANGE_INPUT,
+      payload: { name: e.target.name, value: e.target.value },
+    });
+  };
   console.log(state);
   return (
     <div
@@ -94,7 +106,7 @@ function UpdateModal({
                   placeholder="Enter Guest Name"
                   minLength={3}
                   required
-                  onChange={(e) => setUpdatedName(e.target.value)}
+                  onChange={handleInput}
                 />
               </div>
               <div>
@@ -108,7 +120,7 @@ function UpdateModal({
                   placeholder="Enter Table Number"
                   defaultValue={guestTableNumber}
                   required
-                  onChange={(e) => setUpdatedTable(e.target.value)}
+                  onChange={handleInput}
                 />
               </div>
             </div>

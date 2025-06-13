@@ -1,5 +1,6 @@
 export const ACTION_TYPES = {
   SET_GUEST_DATA: "SET_GUEST_DATA",
+  CHANGE_INPUT: "CHANGE_INPUT",
   GET_GUEST_ADDED: "GET_GUEST_ADDED",
   GET_GUEST_UPDATED: "GET_GUEST_UPDATED",
   GET_GUEST_DELETED: "GET_GUEST_DELETED",
@@ -20,6 +21,11 @@ export const INITIAL_STATE = {
 
 export const guestReducer = (state, action) => {
   switch (action.type) {
+    case ACTION_TYPES.CHANGE_INPUT:
+      return {
+        ...state,
+        [action.payload.name]: action.payload.value,
+      };
     case ACTION_TYPES.SET_GUEST_DATA:
       return {
         ...state,
