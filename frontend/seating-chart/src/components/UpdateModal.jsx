@@ -1,6 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useReducer } from "react";
 import axios from "axios";
 import { useState } from "react";
+import {
+  ACTION_TYPES,
+  guestReducer,
+  INITIAL_STATE,
+} from "../reducers/guestReducer";
 
 function UpdateModal({
   guestId,
@@ -11,22 +16,18 @@ function UpdateModal({
 }) {
   const [updatedName, setUpdatedName] = useState("");
   const [updatedTable, setUpdatedTable] = useState();
-  const [guestUpdated, setGuestUpdated] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
   const editGuest = async (id) => {
     //reset state
-    setGuestUpdated(false);
-    setSuccessMessage("");
-    setError(false);
-    setErrorMessage("");
+    dispatch({ type: ACTION_TYPES.RESET });
 
     //check if name and table number are not empty
     if (updatedName == "" || !updatedTable) {
-      setError(true);
-      setErrorMessage("Input all fields");
+      dispatch({
+        type: ACTION_TYPES.GET_ERROR,
+        payload: { error: "Input all fields" },
+      });
       return;
     }
     const cleanName = SanitizeName(updatedName);
@@ -40,10 +41,11 @@ function UpdateModal({
           tableNumber: updatedTable,
         }
       );
-      console.log(response.data);
-      setGuestUpdated(true);
-      setSuccessMessage("Guest updated successfully");
-
+      console.log(response);
+      dispatch({
+        type: ACTION_TYPES.GET_GUEST_UPDATED,
+        payload: { guestName: cleanName },
+      });
       refreshData();
       setTimeout(() => {
         closeModal();
@@ -68,14 +70,15 @@ function UpdateModal({
     setUpdatedTable(guestTableNumber);
   }, []);
 
+  console.log(state);
   return (
     <div
       className="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex flex-col bg-white rounded-2xl p-6 gap-y-2 mx-5">
-        {guestUpdated ? (
-          <div className="text-md font-normal">{successMessage}</div>
+        {state.guestUpdated ? (
+          <div className="text-md font-normal">{state.successMessage}</div>
         ) : (
           <>
             <div className="grid gap-6">
@@ -86,7 +89,7 @@ function UpdateModal({
                 <input
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
                   type="text"
-                  id="guest_name"
+                  name="guestName"
                   defaultValue={guestFullname}
                   placeholder="Enter Guest Name"
                   minLength={3}
@@ -101,15 +104,17 @@ function UpdateModal({
                 <input
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   type="number"
-                  id="table_number"
+                  name="tableNumber"
                   placeholder="Enter Table Number"
                   defaultValue={guestTableNumber}
                   required
-                  onChange={(e) => setUpdatedTable(parseInt(e.target.value))}
+                  onChange={(e) => setUpdatedTable(e.target.value)}
                 />
               </div>
             </div>
-            {error && <p className="text-red-500">{errorMessage}</p>}
+            {state.error && (
+              <p className="text-red-500">{state.errorMessage}</p>
+            )}
             <div className="flex justify-center items-center gap-x-6">
               <button
                 type="button"

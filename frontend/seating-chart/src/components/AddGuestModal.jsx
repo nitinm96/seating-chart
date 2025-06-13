@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useReducer } from "react";
 import axios from "axios";
+import { guestReducer, INITIAL_STATE } from "../reducers/guestReducer";
 
 function AddGuestModal({ refreshData, closeModal }) {
   const [guestName, setGuestName] = useState("");
@@ -8,6 +9,8 @@ function AddGuestModal({ refreshData, closeModal }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [guestAdded, setGuestAdded] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
+  const [currentState] = useReducer(guestReducer, INITIAL_STATE);
 
   const addGuest = async () => {
     //reset variables
@@ -67,8 +70,10 @@ function AddGuestModal({ refreshData, closeModal }) {
     >
       <div className="flex flex-col bg-white rounded-2xl p-6 gap-y-2 mx-5">
         <div className="grid gap-6">
-          {guestAdded ? (
-            <div className="text-md font-normal">{successMessage}</div>
+          {currentState.changeMade ? (
+            <div className="text-md font-normal">
+              {currentState.successMessage}
+            </div>
           ) : (
             <>
               <div className="font-bold text-xl">Add Guest</div>
@@ -99,7 +104,9 @@ function AddGuestModal({ refreshData, closeModal }) {
                   onChange={(e) => setTableNumber(parseInt(e.target.value))}
                 />
               </div>
-              {error && <p className="text-red-500">{errorMessage}</p>}
+              {currentState.error && (
+                <p className="text-red-500">{currentState.errorMessage}</p>
+              )}
               <div className="flex justify-center items-center gap-x-6">
                 <button
                   type="button"
