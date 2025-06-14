@@ -1,6 +1,5 @@
 import React, { useEffect, useReducer } from "react";
 import axios from "axios";
-import { useState } from "react";
 import {
   ACTION_TYPES,
   guestReducer,
@@ -16,21 +15,32 @@ function UpdateModal({
 }) {
   const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
+  useEffect(() => {
+    dispatch({
+      type: ACTION_TYPES.SET_GUEST_DATA,
+      payload: {
+        guestName: guestFullname,
+        tableNumber: parseInt(guestTableNumber),
+      },
+    });
+  }, []);
+
   const editGuest = async (id) => {
     //reset state
     dispatch({ type: ACTION_TYPES.RESET });
 
-    //check if name and table number are not empty
+    //validate user inputs
     const fullName = state.guestName;
     const cleanTableNumber = parseInt(state.tableNumber);
 
     if (fullName == "" || !cleanTableNumber) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
-        payload: { error: "Input all fields" },
+        payload: { error: `${state.guestName}Input all fields correctly` },
       });
       return;
     }
+    //sanitize names so first letters of firstname and lastname are capitalized
     const cleanName = SanitizeName(fullName);
     console.log(id, cleanName, cleanTableNumber);
 
@@ -52,7 +62,11 @@ function UpdateModal({
         closeModal();
       }, 1500);
     } catch (error) {
-      console.error(error);
+      console.error(error.response);
+      const errMsg =
+        error.response?.data?.error ||
+        "Something went wrong. Please try again.";
+      dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
   };
 
@@ -66,22 +80,15 @@ function UpdateModal({
     return sanitizedName;
   }
 
-  useEffect(() => {
-    dispatch({
-      type: ACTION_TYPES.SET_GUEST_DATA,
-      payload: {
-        guestName: guestFullname,
-        tableNumber: parseInt(guestTableNumber),
-      },
-    });
-  }, []);
-
+  //handle input on change with reducer
   const handleInput = (e) => {
+    console.log(e.target.name);
     dispatch({
       type: ACTION_TYPES.CHANGE_INPUT,
       payload: { name: e.target.name, value: e.target.value },
     });
   };
+
   console.log(state);
   return (
     <div
@@ -102,11 +109,12 @@ function UpdateModal({
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
                   type="text"
                   name="guestName"
-                  defaultValue={guestFullname}
+                  defaultValue={state.guestName}
                   placeholder="Enter Guest Name"
-                  minLength={3}
+                  minLength={4}
                   required
                   onChange={handleInput}
+                  onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}
                 />
               </div>
               <div>
@@ -118,9 +126,10 @@ function UpdateModal({
                   type="number"
                   name="tableNumber"
                   placeholder="Enter Table Number"
-                  defaultValue={guestTableNumber}
+                  defaultValue={state.tableNumber}
                   required
                   onChange={handleInput}
+                  onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}
                 />
               </div>
             </div>

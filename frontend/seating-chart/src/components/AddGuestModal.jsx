@@ -1,43 +1,40 @@
 import React, { useState, useReducer } from "react";
 import axios from "axios";
-import { guestReducer, INITIAL_STATE } from "../reducers/guestReducer";
+import {
+  ACTION_TYPES,
+  guestReducer,
+  INITIAL_STATE,
+} from "../reducers/guestReducer";
 
 function AddGuestModal({ refreshData, closeModal }) {
-  const [guestName, setGuestName] = useState("");
-  const [tableNumber, setTableNumber] = useState();
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [guestAdded, setGuestAdded] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-
-  const [currentState] = useReducer(guestReducer, INITIAL_STATE);
+  const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
   const addGuest = async () => {
-    //reset variables
-    setError(false);
-    setErrorMessage("");
-    setGuestAdded(false);
-    setSuccessMessage("");
+    //reset state
+    dispatch({ type: ACTION_TYPES.RESET });
 
+    const guest_name = state.guestName;
+    const table_number = parseInt(state.tableNumber);
     //validate input fields
-    if (guestName == "" || !tableNumber) {
-      setError(true);
-      setErrorMessage("Input all fields");
+    if (guest_name == "" || !table_number) {
+      dispatch({
+        type: ACTION_TYPES.GET_ERROR,
+        payload: { error: "Input all fields correctly" },
+      });
       return;
     }
-    const cleanName = SanitizeName(guestName);
+    const cleanName = SanitizeName(guest_name);
 
-    console.log(cleanName, tableNumber);
+    console.log(cleanName, table_number);
     //add guest post request
     try {
       const response = await axios.post(`http://localhost:5001/api/guests/`, {
         fullName: cleanName,
-        tableNumber: tableNumber,
+        tableNumber: table_number,
       });
       console.log(response.data);
       //refresh data, close modal
-      setGuestAdded(true);
-      setSuccessMessage(`Guest ${cleanName} added successfully!`);
+      dispatch({ type: ACTION_TYPES.GET_GUEST_ADDED });
       refreshData();
 
       //set delay to show success message
@@ -49,8 +46,7 @@ function AddGuestModal({ refreshData, closeModal }) {
       const errMsg =
         error.response?.data?.error ||
         "Something went wrong. Please try again.";
-      setError(true);
-      setErrorMessage(errMsg);
+      dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
   };
 
@@ -63,6 +59,15 @@ function AddGuestModal({ refreshData, closeModal }) {
     return sanitizedName;
   }
 
+  //handle input on change with reducer
+  const handleInput = (e) => {
+    dispatch({
+      type: ACTION_TYPES.CHANGE_INPUT,
+      payload: { name: e.target.name, value: e.target.value },
+    });
+  };
+  console.log(state);
+
   return (
     <div
       className="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
@@ -70,10 +75,8 @@ function AddGuestModal({ refreshData, closeModal }) {
     >
       <div className="flex flex-col bg-white rounded-2xl p-6 gap-y-2 mx-5">
         <div className="grid gap-6">
-          {currentState.changeMade ? (
-            <div className="text-md font-normal">
-              {currentState.successMessage}
-            </div>
+          {state.guestAdded ? (
+            <div className="text-md font-normal">{state.successMessage}</div>
           ) : (
             <>
               <div className="font-bold text-xl">Add Guest</div>
@@ -85,8 +88,10 @@ function AddGuestModal({ refreshData, closeModal }) {
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
                   type="text"
                   id="guest_name"
+                  name="guestName"
                   placeholder="Enter guest first and last name"
-                  onChange={(e) => setGuestName(e.target.value)}
+                  onChange={handleInput}
+                  onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}
                   autoFocus
                   required
                 />
@@ -98,14 +103,16 @@ function AddGuestModal({ refreshData, closeModal }) {
                 <input
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   type="number"
+                  name="tableNumber"
                   id="table_number"
                   placeholder="Enter table number"
+                  onChange={handleInput}
+                  onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}
                   required
-                  onChange={(e) => setTableNumber(parseInt(e.target.value))}
                 />
               </div>
-              {currentState.error && (
-                <p className="text-red-500">{currentState.errorMessage}</p>
+              {state.error && (
+                <p className="text-red-500">{state.errorMessage}</p>
               )}
               <div className="flex justify-center items-center gap-x-6">
                 <button

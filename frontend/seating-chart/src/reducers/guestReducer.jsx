@@ -5,6 +5,7 @@ export const ACTION_TYPES = {
   GET_GUEST_UPDATED: "GET_GUEST_UPDATED",
   GET_GUEST_DELETED: "GET_GUEST_DELETED",
   GET_ERROR: "GET_ERROR",
+  RESET_ERROR: "RESET_ERROR",
   RESET: "RESET",
 };
 
@@ -32,12 +33,6 @@ export const guestReducer = (state, action) => {
         guestName: action.payload.guestName,
         tableNumber: action.payload.tableNumber,
       };
-    case ACTION_TYPES.GET_ERROR:
-      return {
-        ...state,
-        error: true,
-        errorMessage: action.payload.error,
-      };
     case ACTION_TYPES.GET_GUEST_ADDED:
       return {
         ...state,
@@ -55,6 +50,18 @@ export const guestReducer = (state, action) => {
         ...state,
         guestDeleted: true,
         successMessage: `Guest deleted successfully`,
+      };
+    case ACTION_TYPES.GET_ERROR:
+      return {
+        ...state,
+        error: true,
+        errorMessage: action.payload.error,
+      };
+    case ACTION_TYPES.RESET_ERROR:
+      return {
+        ...state,
+        error: false,
+        errorMessage: "",
       };
     case ACTION_TYPES.RESET:
       return {
