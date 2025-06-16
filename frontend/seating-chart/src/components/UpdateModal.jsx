@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import axios from "axios";
+import { CaptializeFullName } from "../util/stringUtils.js";
 import {
   ACTION_TYPES,
   guestReducer,
@@ -20,7 +21,7 @@ function UpdateModal({
       type: ACTION_TYPES.SET_GUEST_DATA,
       payload: {
         guestName: guestFullname,
-        tableNumber: parseInt(guestTableNumber),
+        tableNumber: guestTableNumber,
       },
     });
   }, []);
@@ -30,33 +31,30 @@ function UpdateModal({
     dispatch({ type: ACTION_TYPES.RESET });
 
     //validate user inputs
-    const fullName = state.guestName;
-    const cleanTableNumber = parseInt(state.tableNumber);
+    const guest_name = state.guestName;
+    const clean_table_number = parseInt(state.tableNumber);
 
-    if (fullName == "" || !cleanTableNumber) {
+    if (guest_name == "" || !clean_table_number) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
-        payload: { error: `${state.guestName}Input all fields correctly` },
+        payload: { error: "Input all fields correctly" },
       });
       return;
     }
     //sanitize names so first letters of firstname and lastname are capitalized
-    const cleanName = SanitizeName(fullName);
-    console.log(id, cleanName, cleanTableNumber);
+    const cleanName = CaptializeFullName(guest_name);
+    console.log(id, cleanName, clean_table_number);
 
     try {
       const response = await axios.put(
         `http://localhost:5001/api/guests/${id}`,
         {
           fullName: cleanName,
-          tableNumber: cleanTableNumber,
+          tableNumber: clean_table_number,
         }
       );
       console.log(response);
-      dispatch({
-        type: ACTION_TYPES.GET_GUEST_UPDATED,
-        payload: { guestName: cleanName },
-      });
+      dispatch({ type: ACTION_TYPES.GET_GUEST_UPDATED });
       refreshData();
       setTimeout(() => {
         closeModal();
@@ -70,19 +68,8 @@ function UpdateModal({
     }
   };
 
-  //function to santize names and have first letter uppercase for firstname and lastname
-  function SanitizeName(name) {
-    let split = name.split(" ");
-    for (let i = 0; i < split.length; i++) {
-      split[i] = split[i][0].toUpperCase() + split[i].slice(1);
-    }
-    const sanitizedName = split.join(" ");
-    return sanitizedName;
-  }
-
   //handle input on change with reducer
   const handleInput = (e) => {
-    console.log(e.target.name);
     dispatch({
       type: ACTION_TYPES.CHANGE_INPUT,
       payload: { name: e.target.name, value: e.target.value },
@@ -127,6 +114,7 @@ function UpdateModal({
                   name="tableNumber"
                   placeholder="Enter Table Number"
                   defaultValue={state.tableNumber}
+                  minLength={1}
                   required
                   onChange={handleInput}
                   onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}

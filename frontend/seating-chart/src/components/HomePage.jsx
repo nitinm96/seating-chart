@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import testData from "../testData/guestData.json";
 import BuildCircleIcon from "@mui/icons-material/BuildCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import PasswordModal from "./PasswordModal";
+import {
+  ACTION_TYPES,
+  guestReducer,
+  INITIAL_STATE,
+} from "../reducers/guestReducer";
 
 function HomePage() {
   const navigate = useNavigate();
@@ -12,53 +16,56 @@ function HomePage() {
   const [searchedGuest, setSearchedGuest] = useState("");
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
+
+  useEffect(() => {
+    getAllSeating();
+  }, []);
 
   const getAllSeating = async () => {
     try {
-      setError(false);
-      setErrorMessage("");
+      dispatch({ type: ACTION_TYPES.RESET });
 
       const response = await axios.get("http://localhost:5001/api/guests");
       console.log(response);
       const data = response.data;
       if (data.guestCount == 0) {
-        setError(true);
-        setErrorMessage(data?.error || "No guests found in database");
+        dispatch({
+          type: ACTION_TYPES.GET_ERROR,
+          payload: { error: data?.error || "No guests found in database" },
+        });
         return;
       }
-
-      setAllGuestData(data.allGuests);
+      const sortedData = [...data.allGuests].sort((a, b) =>
+        a.guest_name.localeCompare(b.guest_name)
+      );
+      setAllGuestData(sortedData);
     } catch (error) {
-      console.error(error);
+      console.error(error.response);
       const errMsg =
-        error?.message || "Something went wrong. Please try again.";
-      setError(true);
-      setErrorMessage(errMsg);
+        error.response?.data?.error ||
+        "Something went wrong. Please try again later.";
+      dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
   };
 
   function findGuest(e) {
     e.preventDefault();
-    setError(false);
-    setErrorMessage("");
+    dispatch({ type: ACTION_TYPES.RESET_ERROR });
+
     const search = searchedGuest.toLowerCase().trim();
     const results = allGuestData.filter((guest) =>
       guest.guest_name.toLowerCase().includes(search)
     );
-    // const results = testData.filter(guest => guest.fullName.toLowerCase().includes(search));
 
     if (results.length == 0) {
-      setError(true);
-      setErrorMessage("No guests found");
+      dispatch({
+        type: ACTION_TYPES.GET_ERROR,
+        payload: { error: "No guests found, please see hosts." },
+      });
     }
     setSearchedOutput(results);
   }
-
-  useEffect(() => {
-    getAllSeating();
-  }, []);
 
   const openPasswordModal = () => {
     setShowPasswordModal(!showPasswordModal);
@@ -90,7 +97,7 @@ function HomePage() {
       <div className="text-3xl my-10">LAVANYA & NITIN</div>
       <div className="flex flex-col justify-center items-center p-8 rounded-2xl mb-10">
         <div className="text-xl text-justify">
-          Please enter your name or family name to find table number below:
+          Please enter your full name or surname to find table number below:
         </div>
         <form method="post" onSubmit={findGuest} className="mt-5 w-full">
           <div className="flex w-full sm:w-3/4 pl-2 pr-2 py-2 border border-gray-300 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition">
@@ -129,13 +136,11 @@ function HomePage() {
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0 ms-1">
                       <p className="text-md text-gray-900">
-                        {/* {guest.fullName} */}
                         {guest.guest_name}
                       </p>
                     </div>
                     <div className="w-20 flex items-center justify-center text-base font-semibold text-gray-800">
                       <p className="text-md text-gray-900">
-                        {/* {guest.fullName} */}
                         {guest.table_number}
                       </p>
                     </div>
@@ -146,7 +151,9 @@ function HomePage() {
           </div>
         </div>
       )}
-      {error && <div className="text-md font-normal">{errorMessage}</div>}
+      {state.error && (
+        <div className="text-md font-normal">{state.errorMessage}</div>
+      )}
     </div>
   );
 }

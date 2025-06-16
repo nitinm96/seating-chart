@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import axios from "axios";
+import {
+  guestReducer,
+  INITIAL_STATE,
+  ACTION_TYPES,
+} from "../reducers/guestReducer";
 
 function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
-  const [guestDeleted, setGuestDeleted] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
   const deleteGuest = async (id) => {
-    // console.log(id)
-    // closeModal();
-
     //reset state
-    setGuestDeleted(false);
-    setSuccessMessage("");
+    dispatch({ type: ACTION_TYPES.RESET });
 
     try {
       const response = await axios.delete(
@@ -19,15 +19,18 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
       );
       console.log(response.data);
 
-      setGuestDeleted(true);
-      setSuccessMessage(`${guestName} deleted successfully`);
+      dispatch({ type: ACTION_TYPES.GET_GUEST_DELETED, payload: guestName });
 
       refreshData();
       setTimeout(() => {
         closeModal();
       }, 1500);
     } catch (error) {
-      console.error(error);
+      console.error(error.response);
+      const errMsg =
+        error.response?.data?.error ||
+        "Something went wrong. Please try again.";
+      dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
   };
   return (
@@ -36,8 +39,8 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex flex-col bg-white rounded-2xl p-6 gap-y-2 mx-5">
-        {guestDeleted ? (
-          <div className="text-md font-normal">{successMessage}</div>
+        {state.guestDeleted ? (
+          <div className="text-md font-normal">{state.successMessage}</div>
         ) : (
           <>
             <div className="font-bold text-xl">Confirm Delete</div>

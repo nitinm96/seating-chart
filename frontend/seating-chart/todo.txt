@@ -1,5 +1,4 @@
 todo list:
-- add error handling in some of the components. (delete modal, admin page, check others).
 - improve ui of everything lol
 - make comments throughout code
--test and fix reducer. issue with handling empty inputs.
+- initial backspace on table input not working for single table number.

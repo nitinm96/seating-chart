@@ -1,46 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import GuestCard from "./GuestCard";
-import testData from "../testData/guestData.json";
 import AddGuestModal from "./AddGuestModal";
+import {
+  ACTION_TYPES,
+  guestReducer,
+  INITIAL_STATE,
+} from "../reducers/guestReducer";
 
 function AdminPage() {
   const navigate = useNavigate();
   const [allGuestData, setAllGuestData] = useState([]);
-  const [searchedItem, setSearchedItem] = useState("");
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [viewAllGuests, setViewAllGuests] = useState(true);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
+
+  useEffect(() => {
+    getAllGuests();
+  }, []);
 
   const getAllGuests = async () => {
     try {
-      setError(false);
-      setErrorMessage("");
+      dispatch({ type: ACTION_TYPES.RESET });
       const response = await axios.get("http://localhost:5001/api/guests");
       console.log(response);
       const data = response.data;
+
       if (data.guestCount == 0) {
-        setError(true);
-        setErrorMessage(data.error);
+        dispatch({
+          type: ACTION_TYPES.GET_ERROR,
+          payload: { error: data?.error || "No guests found in database" },
+        });
         return;
       }
-      setAllGuestData(data.allGuests);
-    } catch (err) {
-      console.error(err);
-      setError(true);
-      setErrorMessage(err);
+      const sortedData = [...data.allGuests].sort((a, b) =>
+        a.guest_name.localeCompare(b.guest_name)
+      );
+      setAllGuestData(sortedData);
+    } catch (error) {
+      console.error(error.response);
+      const errMsg =
+        error.response?.data?.error ||
+        "Something went wrong. Please try again later.";
+      dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
   };
 
-  function findGuest(e) {
-    const search = e.trim().toLowerCase();
-    setSearchedItem(search);
+  const findGuest = (e) => {
+    dispatch({ type: ACTION_TYPES.RESET_ERROR });
+    const search = e.target.value.trim().toLowerCase();
 
     // Show all guests if search is too short
     if (search.length < 1) {
@@ -48,27 +61,20 @@ function AdminPage() {
       setSearchedOutput([]);
       return;
     }
-
-    setViewAllGuests(false);
-
     const results = allGuestData.filter((guest) => {
       const nameMatch = guest.guest_name.toLowerCase().includes(search);
       const tableMatch = guest.table_number.toString() === search;
       return nameMatch || tableMatch;
     });
-
-    //using test data
-    // const results = testData.filter((guest) => {
-    //   const nameMatch = guest.fullName.toLowerCase().includes(search);
-    //   const tableMatch = guest.tableNumber.toString()===(search);
-    //   return nameMatch || tableMatch;
-    // });
+    if (results.length == 0 && search.length > 0) {
+      dispatch({
+        type: ACTION_TYPES.GET_ERROR,
+        payload: { error: "No guests found" },
+      });
+    }
     setSearchedOutput(results);
-  }
-
-  useEffect(() => {
-    getAllGuests();
-  }, []);
+    setViewAllGuests(false);
+  };
 
   const goToHome = () => {
     navigate("/");
@@ -114,12 +120,18 @@ function AdminPage() {
             required
             autoFocus
             type="text"
-            onChange={(e) => findGuest(e.target.value)}
+            onChange={findGuest}
           />
         </div>
       </div>
 
-      <div>Total Guest Count: {error ? 0 : allGuestData.length}</div>
+      <div>
+        {state.error
+          ? "Total Guest Count: 0"
+          : searchedOutput.length > 0
+          ? `Searched Guest Count: ${searchedOutput.length}`
+          : `Total Guest Count: ${allGuestData.length}`}
+      </div>
 
       <div className="flex justify-between items-center p-4 font-medium bg-gray-300 mt-4 w-full">
         <span className="w-1/3">Full Name</span>
@@ -127,16 +139,12 @@ function AdminPage() {
         <span className="w-1/6 text-right">Action</span>
       </div>
       <div>
-        {error ? (
-          <div className="text-md font-normal">{errorMessage}</div>
+        {state.error ? (
+          <div className="text-md font-normal">{state.errorMessage}</div>
         ) : viewAllGuests ? (
-          //testData.map.....
           allGuestData.map((guest, index) => (
             <div key={index}>
               <GuestCard
-                // guestId={index}
-                // guestFullName={guest.fullName}
-                // guestTableNumber={guest.tableNumber}
                 guestId={guest.guest_id}
                 guestFullName={guest.guest_name}
                 guestTableNumber={guest.table_number}
@@ -148,9 +156,6 @@ function AdminPage() {
           searchedOutput.map((guest, index) => (
             <div key={index}>
               <GuestCard
-                // guestId={index}
-                // guestFullName={guest.fullName}
-                // guestTableNumber={guest.tableNumber}
                 guestId={guest.guest_id}
                 guestFullName={guest.guest_name}
                 guestTableNumber={guest.table_number}
@@ -158,10 +163,6 @@ function AdminPage() {
               />
             </div>
           ))
-        )}
-
-        {searchedOutput.length == 0 && searchedItem.length > 0 && (
-          <div className="text-md font-normal">No guests found</div>
         )}
       </div>
     </div>

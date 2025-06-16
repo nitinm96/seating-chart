@@ -49,7 +49,7 @@ export const guestReducer = (state, action) => {
       return {
         ...state,
         guestDeleted: true,
-        successMessage: `Guest deleted successfully`,
+        successMessage: `Guest ${action.payload} deleted successfully`,
       };
     case ACTION_TYPES.GET_ERROR:
       return {
@@ -65,7 +65,7 @@ export const guestReducer = (state, action) => {
       };
     case ACTION_TYPES.RESET:
       return {
-        state,
+        ...state,
       };
     default:
       return {

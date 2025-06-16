@@ -1,5 +1,6 @@
 import React, { useState, useReducer } from "react";
 import axios from "axios";
+import { CaptializeFullName } from "../util/stringUtils.js";
 import {
   ACTION_TYPES,
   guestReducer,
@@ -14,23 +15,23 @@ function AddGuestModal({ refreshData, closeModal }) {
     dispatch({ type: ACTION_TYPES.RESET });
 
     const guest_name = state.guestName;
-    const table_number = parseInt(state.tableNumber);
+    const clean_table_number = parseInt(state.tableNumber);
     //validate input fields
-    if (guest_name == "" || !table_number) {
+    if (guest_name == "" || !clean_table_number) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
         payload: { error: "Input all fields correctly" },
       });
       return;
     }
-    const cleanName = SanitizeName(guest_name);
+    const cleanName = CaptializeFullName(guest_name);
 
-    console.log(cleanName, table_number);
+    console.log(cleanName, clean_table_number);
     //add guest post request
     try {
       const response = await axios.post(`http://localhost:5001/api/guests/`, {
         fullName: cleanName,
-        tableNumber: table_number,
+        tableNumber: clean_table_number,
       });
       console.log(response.data);
       //refresh data, close modal
@@ -49,16 +50,6 @@ function AddGuestModal({ refreshData, closeModal }) {
       dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
   };
-
-  function SanitizeName(name) {
-    let split = name.split(" ");
-    for (let i = 0; i < split.length; i++) {
-      split[i] = split[i][0].toUpperCase() + split[i].slice(1);
-    }
-    const sanitizedName = split.join(" ");
-    return sanitizedName;
-  }
-
   //handle input on change with reducer
   const handleInput = (e) => {
     dispatch({
@@ -87,7 +78,6 @@ function AddGuestModal({ refreshData, closeModal }) {
                 <input
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
                   type="text"
-                  id="guest_name"
                   name="guestName"
                   placeholder="Enter guest first and last name"
                   onChange={handleInput}
@@ -104,7 +94,6 @@ function AddGuestModal({ refreshData, closeModal }) {
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   type="number"
                   name="tableNumber"
-                  id="table_number"
                   placeholder="Enter table number"
                   onChange={handleInput}
                   onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}
