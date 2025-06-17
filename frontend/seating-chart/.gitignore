@@ -28,4 +28,3 @@ dist-ssr
 
 #ignore test data
 src/testData
-public/assets/backgroundImg.jpg
