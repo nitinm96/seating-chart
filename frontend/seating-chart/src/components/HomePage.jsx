@@ -9,6 +9,7 @@ import {
   guestReducer,
   INITIAL_STATE,
 } from "../reducers/guestReducer";
+import guestData from "../testData/guestData.json";
 
 function HomePage() {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ function HomePage() {
       console.error(error.response);
       const errMsg =
         error.response?.data?.error ||
-        "Something went wrong. Please try again later.";
+        "Something went wrong, Please try again later.";
       dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
   };
@@ -61,7 +62,7 @@ function HomePage() {
     if (results.length == 0) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
-        payload: { error: "No guests found, please see hosts." },
+        payload: { error: "No guests found, please see hosts" },
       });
     }
     setSearchedOutput(results);
@@ -76,84 +77,92 @@ function HomePage() {
   const goToAdmin = () => {
     navigate("/admin");
   };
+
   return (
-    <div className="flex flex-col justify-center items-center">
-      <div
-        onClick={openPasswordModal}
-        className="flex justify-end w-full justify-items-center"
-      >
-        {showPasswordModal && (
-          <PasswordModal
-            goToAdmin={goToAdmin}
-            closeModal={closePasswordModal}
-          />
-        )}
-        <div className="flex justify-center items-center bg-blue-500 text-white py-2 px-4 m-2 rounded-2xl hover:opacity-80 cursor-pointer">
-          <BuildCircleIcon />
-          <span>Admin</span>
-        </div>
-      </div>
+    <div className="h-screen bg-[url(../../assets/backgroundImg.jpg)] bg-cover bg-center">
+      {/* Background Image Layer */}
 
-      <div className="text-3xl my-10">LAVANYA & NITIN</div>
-      <div className="flex flex-col justify-center items-center p-8 rounded-2xl mb-10">
-        <div className="text-xl text-justify">
-          Please enter your full name or surname to find table number below:
-        </div>
-        <form method="post" onSubmit={findGuest} className="mt-5 w-full">
-          <div className="flex w-full sm:w-3/4 pl-2 pr-2 py-2 border border-gray-300 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition">
-            <SearchIcon className="" htmlColor="#d1d5dc" />
-            <input
-              className="w-full outline-none"
-              type="text"
-              name="fullName"
-              required
-              minLength={4}
-              placeholder="Ex: Nitin Minhas or Minhas"
-              autoFocus
-              onChange={(e) => setSearchedGuest(e.target.value)}
+      {/* Content Layer */}
+      <div className="flex flex-col justify-start items-center w-full bg-black/35 h-screen">
+        <div className="flex justify-end w-full">
+          {showPasswordModal && (
+            <PasswordModal
+              goToAdmin={goToAdmin}
+              closeModal={closePasswordModal}
             />
-          </div>
-          <button
-            className="cursor-pointer py-2 px-8 mt-6 hover:opacity-90 bg-blue-400 rounded text-white"
-            type="submit"
+          )}
+          <div
+            className="flex justify-center items-center bg-blue-500 text-white py-2 px-4 m-2 rounded hover:opacity-80 active:opacity-60 active:ring-1 cursor-pointer"
+            onClick={openPasswordModal}
           >
-            Find Table
-          </button>
-        </form>
-      </div>
-
-      {/* display searched items */}
-      {searchedOutput.length != 0 && (
-        <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm mb-10  p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="font-bold">Guest Name</div>
-            <div className="font-bold">Table Number</div>
+            <BuildCircleIcon />
+            <span>Admin</span>
           </div>
-          <div className="">
-            <ul className="divide-y divide-gray-200 ">
-              {searchedOutput.map((guest, index) => (
-                <li key={index} className="py-3">
+        </div>
+        <div className="flex flex-col justify-center items-center p-8 rounded-2xl">
+          <div className="text-xl text-center text-white">
+            Please enter your full name or surname to find table number below:
+          </div>
+          <form
+            method="post"
+            onSubmit={findGuest}
+            className="flex flex-col justify-center items-end mt-5 w-full"
+          >
+            <div className="flex w-full sm:w-3/4 pl-2 pr-2 py-2 border-1 shadow-lg bg-white border-gray-300 rounded focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition">
+              <SearchIcon htmlColor="#d1d5dc" />
+              <input
+                className="w-full outline-none text-sm"
+                type="text"
+                name="fullName"
+                required
+                minLength={3}
+                placeholder="Ex: Nitin Minhas or Minhas"
+                onChange={(e) => setSearchedGuest(e.target.value)}
+                onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}
+              />
+            </div>
+            <button
+              className="cursor-pointer py-2 px-8 mt-6 hover:opacity-90 active:opacity-60 active:ring-1 bg-blue-500 rounded text-white"
+              type="submit"
+            >
+              Find Table
+            </button>
+          </form>
+        </div>
+
+        {/* Display searched items */}
+        {searchedOutput.length !== 0 && (
+          <div className=" bg-white/70 rounded-lg shadow-sm px-8 py-4 mt-4 mb-16">
+            <div className="flex items-center justify-between mb-4 font-bold gap-x-14 text-lg whitespace-nowrap">
+              <div>Guest Name</div>
+              <div>Table Number</div>
+            </div>
+            <ul className="text-sm">
+              {searchedOutput.map((guest) => (
+                <li key={guest.guest_id} className="my-4 py-2 border-b-1">
                   <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0 ms-1">
-                      <p className="text-md text-gray-900">
-                        {guest.guest_name}
-                      </p>
+                    <div className="text-md text-gray-900 whitespace-nowrap">
+                      {guest.guest_name}
                     </div>
-                    <div className="w-20 flex items-center justify-center text-base font-semibold text-gray-800">
-                      <p className="text-md text-gray-900">
-                        {guest.table_number}
-                      </p>
+                    <div className="w-20 text-center text-md text-gray-900 font-semibold">
+                      {guest.table_number}
                     </div>
                   </div>
                 </li>
               ))}
             </ul>
           </div>
-        </div>
-      )}
-      {state.error && (
-        <div className="text-md font-normal">{state.errorMessage}</div>
-      )}
+        )}
+
+        {/* Error Message */}
+        {state.error && (
+          <div className="flex justify-center p-5 rounded-xl bg-white/80 mt-12">
+            <div className="text-gray-500 text-xs border-b border-gray-500">
+              {state.errorMessage}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

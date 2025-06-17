@@ -25,33 +25,35 @@ function GuestCard({ guestId, guestFullName, guestTableNumber, refreshData }) {
   };
 
   return (
-    <div className="flex justify-between items-center px-4 py-2 border-b-1 border-gray-300 w-full">
-      <span className="w-1/3 py-3">{guestFullName}</span>
-      <span className="w-1/6 py-3 text-center">{guestTableNumber}</span>
-      <div className="w-1/6 flex justify-end gap-x-3">
-        <span className="cursor-pointer" onClick={openUpdateModal}>
-          <EditIcon htmlColor="#155dfc" />
-          {showUpdateModal && (
-            <UpdateModal
-              guestId={guestId}
-              guestFullname={guestFullName}
-              guestTableNumber={guestTableNumber}
-              closeModal={closeUpdateModal}
-              refreshData={refreshData}
-            />
-          )}
-        </span>
-        <span className="cursor-pointer" onClick={openDeleteModal}>
-          <DeleteOutlineIcon htmlColor="#f51d28" />
-          {showDeleteModal && (
-            <DeleteModal
-              guestId={guestId}
-              guestName={guestFullName}
-              closeModal={closeDeleteModal}
-              refreshData={refreshData}
-            />
-          )}
-        </span>
+    <div className="px-4 py-1 ">
+      <div className="flex border-b-1 justify-between items-center w-full border-gray-200 text-sm">
+        <span className="w-1/3 py-3 whitespace-nowrap">{guestFullName}</span>
+        <span className="w-1/6 py-3 text-center">{guestTableNumber}</span>
+        <div className="w-1/6 flex justify-end gap-x-3">
+          <span className="cursor-pointer" onClick={openUpdateModal}>
+            <EditIcon htmlColor="#155dfc" />
+            {showUpdateModal && (
+              <UpdateModal
+                guestId={guestId}
+                guestFullname={guestFullName}
+                guestTableNumber={guestTableNumber}
+                closeModal={closeUpdateModal}
+                refreshData={refreshData}
+              />
+            )}
+          </span>
+          <span className="cursor-pointer" onClick={openDeleteModal}>
+            <DeleteOutlineIcon htmlColor="#f51d28" />
+            {showDeleteModal && (
+              <DeleteModal
+                guestId={guestId}
+                guestName={guestFullName}
+                closeModal={closeDeleteModal}
+                refreshData={refreshData}
+              />
+            )}
+          </span>
+        </div>
       </div>
     </div>
   );

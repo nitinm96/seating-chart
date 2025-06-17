@@ -115,6 +115,7 @@ function UpdateModal({
                   placeholder="Enter Table Number"
                   defaultValue={state.tableNumber}
                   minLength={1}
+                  maxLength={2}
                   required
                   onChange={handleInput}
                   onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}

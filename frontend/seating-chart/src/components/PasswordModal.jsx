@@ -31,7 +31,9 @@ function PasswordModal({ goToAdmin, closeModal }) {
               placeholder="Enter password"
               required
               autoFocus
+              minLength={4}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setError(false)}
             />
           </div>
         </div>

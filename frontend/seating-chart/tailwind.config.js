@@ -11,7 +11,11 @@ export default {
       lg: "1024px",
       // => @media (min-width: 1280px) { ... }
     },
-    extend: {},
+    extend: {
+      backgroundImage: {
+        homeBackground: "url('/assets/backgroundImg.jpg')",
+      },
+    },
   },
   plugins: [],
 };
