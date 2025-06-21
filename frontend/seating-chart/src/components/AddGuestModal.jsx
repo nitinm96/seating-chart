@@ -29,7 +29,7 @@ function AddGuestModal({ refreshData, closeModal }) {
     console.log(cleanName, clean_table_number);
     //add guest post request
     try {
-      const response = await axios.post(`http://localhost:5001/api/guests/`, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_API}`, {
         fullName: cleanName,
         tableNumber: clean_table_number,
       });

@@ -47,7 +47,7 @@ function UpdateModal({
 
     try {
       const response = await axios.put(
-        `http://localhost:5001/api/guests/${id}`,
+        `${import.meta.env.VITE_BACKEND_API}/${id}`,
         {
           fullName: cleanName,
           tableNumber: clean_table_number,

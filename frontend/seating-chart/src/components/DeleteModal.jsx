@@ -15,7 +15,7 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
 
     try {
       const response = await axios.delete(
-        `http://localhost:5001/api/guests/${id}`
+        `${import.meta.env.VITE_BACKEND_API}/${id}`
       );
       console.log(response.data);
 
