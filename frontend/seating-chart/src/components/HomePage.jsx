@@ -9,7 +9,6 @@ import {
   guestReducer,
   INITIAL_STATE,
 } from "../reducers/guestReducer";
-import guestData from "../testData/guestData.json";
 
 function HomePage() {
   const navigate = useNavigate();

@@ -11,7 +11,6 @@ import {
   guestReducer,
   INITIAL_STATE,
 } from "../reducers/guestReducer";
-import guestData from "../testData/guestData.json";
 
 function AdminPage() {
   const navigate = useNavigate();
