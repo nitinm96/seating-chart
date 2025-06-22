@@ -29,7 +29,9 @@ function AddGuestModal({ refreshData, closeModal }) {
     console.log(cleanName, clean_table_number);
     //add guest post request
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_API}`, {
+      const API_URL =
+        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
+      const response = await axios.post(`${API_URL}`, {
         fullName: cleanName,
         tableNumber: clean_table_number,
       });
@@ -57,7 +59,6 @@ function AddGuestModal({ refreshData, closeModal }) {
       payload: { name: e.target.name, value: e.target.value },
     });
   };
-  console.log(state);
 
   return (
     <div

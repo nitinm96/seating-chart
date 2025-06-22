@@ -25,8 +25,9 @@ function HomePage() {
   const getAllSeating = async () => {
     try {
       dispatch({ type: ACTION_TYPES.RESET });
-
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_API}`);
+      const API_URL =
+        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
+      const response = await axios.get(`${API_URL}`);
       console.log(response);
       const data = response.data;
       if (data.guestCount == 0) {
@@ -78,7 +79,7 @@ function HomePage() {
   };
 
   return (
-    <div className="h-screen bg-[url(../../assets/backgroundImg.jpg)] bg-cover bg-center">
+    <div className="h-screen bg-[url(../../assets/backgroundImg.jpg)] bg-cover bg-center bg-repeat-y">
       {/* Background Image Layer */}
 
       {/* Content Layer */}

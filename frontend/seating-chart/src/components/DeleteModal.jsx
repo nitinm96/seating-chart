@@ -14,9 +14,9 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
     dispatch({ type: ACTION_TYPES.RESET });
 
     try {
-      const response = await axios.delete(
-        `${import.meta.env.VITE_BACKEND_API}/${id}`
-      );
+      const API_URL =
+        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
+      const response = await axios.delete(`${API_URL}/${id}`);
       console.log(response.data);
 
       dispatch({ type: ACTION_TYPES.GET_GUEST_DELETED, payload: guestName });
@@ -33,6 +33,7 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
       dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
   };
+
   return (
     <div
       className="fixed inset-0 bg-black/50 flex justify-center items-center z-50"

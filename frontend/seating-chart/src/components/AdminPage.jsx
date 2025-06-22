@@ -28,7 +28,9 @@ function AdminPage() {
   const getAllGuests = async () => {
     try {
       dispatch({ type: ACTION_TYPES.RESET });
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_API}`);
+      const API_URL =
+        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
+      const response = await axios.get(`${API_URL}`);
       console.log(response);
       const data = response.data;
 

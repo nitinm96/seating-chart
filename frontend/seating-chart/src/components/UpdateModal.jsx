@@ -46,13 +46,12 @@ function UpdateModal({
     console.log(id, cleanName, clean_table_number);
 
     try {
-      const response = await axios.put(
-        `${import.meta.env.VITE_BACKEND_API}/${id}`,
-        {
-          fullName: cleanName,
-          tableNumber: clean_table_number,
-        }
-      );
+      const API_URL =
+        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
+      const response = await axios.put(`${API_URL}/${id}`, {
+        fullName: cleanName,
+        tableNumber: clean_table_number,
+      });
       console.log(response);
       dispatch({ type: ACTION_TYPES.GET_GUEST_UPDATED });
       refreshData();
@@ -76,7 +75,6 @@ function UpdateModal({
     });
   };
 
-  console.log(state);
   return (
     <div
       className="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
