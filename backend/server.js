@@ -8,10 +8,11 @@ dotenv.config();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://nlfindyourseat.netlify.app/"],
+    origin: ["http://localhost:5173", "https://nlfindyourseat.netlify.app"],
+    credentials: true,
   })
 );
-4;
+
 //routes
 app.use("/api/guests", require("./routes/seatingRoute"));
 
