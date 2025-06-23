@@ -81,11 +81,12 @@ function UpdateModal({
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex flex-col bg-white rounded-2xl p-6 gap-y-2 mx-5">
-        {state.guestUpdated ? (
-          <div className="text-md font-normal">{state.successMessage}</div>
-        ) : (
-          <>
-            <div className="grid gap-6">
+        <div className="grid gap-6">
+          {state.guestUpdated ? (
+            <div className="text-md font-normal">{state.successMessage}</div>
+          ) : (
+            <>
+              <div className="font-bold text-xl">Update Guest</div>
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900">
                   Guest Name
@@ -119,28 +120,28 @@ function UpdateModal({
                   onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}
                 />
               </div>
-            </div>
-            {state.error && (
-              <p className="text-red-500">{state.errorMessage}</p>
-            )}
-            <div className="flex justify-center items-center gap-x-6">
-              <button
-                type="button"
-                onClick={() => editGuest(guestId)}
-                className=" text-white bg-blue-500 border-blue-500 border-2 rounded-lg px-8 py-2 cursor-pointer hover:opacity-70"
-              >
-                Update
-              </button>
-              <button
-                type="button"
-                className="border-blue-500 border-2 rounded-lg px-8 py-2 cursor-pointer hover:opacity-85 hover:bg-blue-500 hover:text-white"
-                onClick={closeModal}
-              >
-                Cancel
-              </button>
-            </div>
-          </>
-        )}
+              {state.error && (
+                <p className="text-red-500">{state.errorMessage}</p>
+              )}
+              <div className="flex justify-center items-center gap-x-6">
+                <button
+                  type="button"
+                  onClick={() => editGuest(guestId)}
+                  className=" text-white bg-blue-500 border-blue-500 border-2 rounded-lg px-8 py-2 cursor-pointer hover:opacity-85 active:opacity-85 transition"
+                >
+                  Update
+                </button>
+                <button
+                  type="button"
+                  className="border-blue-500 border-2 rounded-lg px-8 py-2 cursor-pointer hover:opacity-85 hover:bg-blue-500 hover:text-white active:bg-gray-100"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

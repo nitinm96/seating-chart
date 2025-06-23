@@ -49,14 +49,14 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
             <div className="flex justify-center items-center gap-x-6">
               <button
                 type="button"
-                className=" text-white bg-red-700 border-red-700 border-2 rounded-lg px-8 py-2"
+                className=" text-white bg-red-700 border-red-700 border-2 rounded-lg px-8 py-2  active:opacity-85"
                 onClick={() => deleteGuest(guestId)}
               >
                 Yes
               </button>
               <button
                 type="button"
-                className="border-blue-700 border-2 rounded-lg px-8 py-2"
+                className="border-blue-700 border-2 rounded-lg px-8 py-2 active:bg-gray-100"
                 onClick={closeModal}
               >
                 No

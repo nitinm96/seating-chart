@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BuildCircleIcon from "@mui/icons-material/BuildCircle";
 import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import PasswordModal from "./PasswordModal";
 import {
   ACTION_TYPES,
@@ -18,18 +19,23 @@ function HomePage() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
+  // Fetch all guest data on component mount
   useEffect(() => {
     getAllSeating();
   }, []);
 
+  // API call to fetch all guest records
   const getAllSeating = async () => {
     try {
+      // Reset state
       dispatch({ type: ACTION_TYPES.RESET });
+
       const API_URL =
         import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
       const response = await axios.get(`${API_URL}`);
-      console.log(response);
       const data = response.data;
+
+      // Handle empty response
       if (data.guestCount == 0) {
         dispatch({
           type: ACTION_TYPES.GET_ERROR,
@@ -37,12 +43,13 @@ function HomePage() {
         });
         return;
       }
+
+      // Sort guest list alphabetically
       const sortedData = [...data.allGuests].sort((a, b) =>
         a.guest_name.localeCompare(b.guest_name)
       );
       setAllGuestData(sortedData);
     } catch (error) {
-      console.error(error.response);
       const errMsg =
         error.response?.data?.error ||
         "Something went wrong, Please try again later.";
@@ -50,6 +57,7 @@ function HomePage() {
     }
   };
 
+  // Filter and display matching guests based on input
   function findGuest(e) {
     e.preventDefault();
     dispatch({ type: ACTION_TYPES.RESET_ERROR });
@@ -68,22 +76,42 @@ function HomePage() {
     setSearchedOutput(results);
   }
 
+  // Clears input field and any visible errors
+  const handleResetSearch = () => {
+    setSearchedGuest("");
+    if (state.error) dispatch({ type: ACTION_TYPES.RESET_ERROR });
+  };
+
+  // Toggles password modal visibility
   const openPasswordModal = () => {
     setShowPasswordModal(!showPasswordModal);
   };
   const closePasswordModal = () => {
     setShowPasswordModal(!showPasswordModal);
   };
+
+  // Redirects to /admin route
   const goToAdmin = () => {
     navigate("/admin");
   };
 
-  return (
-    <div className="h-screen bg-[url(../../assets/backgroundImg.jpg)] bg-cover bg-center bg-repeat-y">
-      {/* Background Image Layer */}
+  // Fun easter egg (not currently hooked into UI)
+  const funAnimation = (guest) => {
+    switch (guest) {
+      case "Nitin Minhas":
+        alert("YOU'RE THE GROOM");
+      case "Lavanya Verma":
+        alert("YOU'RE THE BRIDE");
+      default:
+        break;
+    }
+  };
 
-      {/* Content Layer */}
-      <div className="flex flex-col justify-start items-center w-full bg-black/35 h-screen">
+  return (
+    <div className="min-h-screen bg-[url(/assets/backgroundImg.jpg)] bg-cover bg-center">
+      {/* Dark overlay over background image */}
+      <div className="flex flex-col justify-start items-center w-full bg-black/35 min-h-screen">
+        {/* Admin button and modal */}
         <div className="flex justify-end w-full">
           {showPasswordModal && (
             <PasswordModal
@@ -99,30 +127,46 @@ function HomePage() {
             <span>Admin</span>
           </div>
         </div>
+
+        {/* Search input form */}
         <div className="flex flex-col justify-center items-center p-8 rounded-2xl">
           <div className="text-xl text-center text-white">
-            Please enter your full name or surname to find table number below:
+            Please enter full name or surname to find your table number below:
           </div>
+
           <form
             method="post"
             onSubmit={findGuest}
-            className="flex flex-col justify-center items-end mt-5 w-full"
+            className="flex flex-col sm:flex-row justify-center items-end mt-5 w-full gap-x-3"
           >
-            <div className="flex w-full sm:w-3/4 pl-2 pr-2 py-2 border-1 shadow-lg bg-white border-gray-300 rounded focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition">
-              <SearchIcon htmlColor="#d1d5dc" />
+            {/* Input field with search and clear icons */}
+            <div className="flex w-full sm:w-3/4 items-center pl-2 pr-2 py-2 border-1 shadow-lg bg-white border-gray-300 rounded focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition">
+              <SearchIcon htmlColor="#9d9d9e" />
               <input
                 className="w-full outline-none text-sm"
                 type="text"
                 name="fullName"
+                value={searchedGuest}
                 required
                 minLength={3}
                 placeholder="Ex: Nitin Minhas or Minhas"
                 onChange={(e) => setSearchedGuest(e.target.value)}
-                onFocus={() => dispatch({ type: ACTION_TYPES.RESET_ERROR })}
+                onFocus={() => {
+                  state.error && dispatch({ type: ACTION_TYPES.RESET_ERROR });
+                }}
               />
+              {searchedGuest.length > 0 && (
+                <CloseIcon
+                  className="cursor-pointer"
+                  onClick={handleResetSearch}
+                  fontSize="small"
+                  htmlColor="#9d9d9e"
+                />
+              )}
             </div>
+
             <button
-              className="cursor-pointer py-2 px-8 mt-6 hover:opacity-90 active:opacity-60 active:ring-1 bg-blue-500 rounded text-white"
+              className="cursor-pointer py-2 px-7 mt-6 hover:opacity-90 active:opacity-60 active:ring-1 bg-blue-500 rounded text-white"
               type="submit"
             >
               Find Table
@@ -130,9 +174,9 @@ function HomePage() {
           </form>
         </div>
 
-        {/* Display searched items */}
+        {/* Search results */}
         {searchedOutput.length !== 0 && (
-          <div className=" bg-white/70 rounded-lg shadow-sm px-8 py-4 mt-4 mb-16">
+          <div className=" bg-white/85 rounded-lg shadow-sm px-8 py-4 mt-4 mb-16">
             <div className="flex items-center justify-between mb-4 font-bold gap-x-14 text-lg whitespace-nowrap">
               <div>Guest Name</div>
               <div>Table Number</div>
@@ -154,7 +198,7 @@ function HomePage() {
           </div>
         )}
 
-        {/* Error Message */}
+        {/* Display error message */}
         {state.error && (
           <div className="flex justify-center p-5 rounded-xl bg-white/80 mt-12">
             <div className="text-gray-500 text-xs border-b border-gray-500">

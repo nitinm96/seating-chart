@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import GuestCard from "./GuestCard";
 import AddGuestModal from "./AddGuestModal";
 import {
@@ -79,6 +80,10 @@ function AdminPage() {
     setViewAllGuests(false);
   };
 
+  const handleResetSearch = () => {
+    setSearch("");
+    setViewAllGuests(true);
+  };
   const goToHome = () => {
     navigate("/");
   };
@@ -93,14 +98,14 @@ function AdminPage() {
       <div className="flex flex-col justify-start items-start m-7 gap-y-6">
         <div className="flex justify-center items-center gap-x-2">
           <div
-            className="flex justify-center items-center bg-blue-500 text-white py-2 px-4 rounded-2xl cursor-pointer hover:opacity-70"
+            className="flex items-center bg-blue-500 text-white py-2 px-4 rounded-2xl cursor-pointer hover:opacity-70 active:bg-blue-400"
             onClick={() => goToHome()}
           >
             <HomeIcon />
             <span>Home</span>
           </div>
           <div
-            className="flex justify-center items-center bg-blue-500 text-white py-2 px-4 rounded-2xl cursor-pointer hover:opacity-70"
+            className="flex items-center bg-blue-500 text-white py-2 px-4 rounded-2xl cursor-pointer hover:opacity-70 active:bg-blue-400"
             onClick={openAddGuestModal}
           >
             <AddIcon />
@@ -114,16 +119,25 @@ function AdminPage() {
           />
         )}
 
-        <div className="flex w-full sm:w-1/3 pl-2 pr-2 py-2 border border-gray-300 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition shadow-lg">
-          <SearchIcon className="" htmlColor="#d1d5dc" />
+        <div className="flex w-full justify-center items-center sm:w-1/3 pl-2 pr-2 py-2 border border-gray-300 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition shadow-lg">
+          <SearchIcon className="" htmlColor="#9d9d9e" />
           <input
             className="w-full bg-transparent outline-none text-xs"
             placeholder="Enter Guest Name or Table Number"
             required
+            value={search}
             autoFocus
             type="text"
             onChange={findGuest}
           />
+          {search.length > 0 && (
+            <CloseIcon
+              className="cursor-pointer"
+              onClick={handleResetSearch}
+              fontSize="small"
+              htmlColor="#9d9d9e"
+            />
+          )}
         </div>
         <div className="flex justify-start items-center px-2 text-sm">
           {state.error

@@ -44,13 +44,13 @@ function PasswordModal({ goToAdmin, closeModal }) {
           <button
             type="button"
             onClick={validateAdmin}
-            className=" text-white bg-blue-500 border-blue-500 border-2 rounded-lg px-8 py-2"
+            className=" text-white bg-blue-500 ring-2 ring-blue-500 rounded-lg px-8 py-2 active:bg-blue-400"
           >
             Enter
           </button>
           <button
             type="button"
-            className="border-blue-500 border-2 rounded-lg px-8 py-2"
+            className="ring-2 ring-blue-500 rounded-lg px-8 py-2 text-blue-500 active:bg-gray-100"
             onClick={closeModal}
           >
             Cancel

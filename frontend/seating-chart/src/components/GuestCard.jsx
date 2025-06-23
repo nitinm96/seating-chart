@@ -30,7 +30,10 @@ function GuestCard({ guestId, guestFullName, guestTableNumber, refreshData }) {
         <span className="w-1/3 py-3 whitespace-nowrap">{guestFullName}</span>
         <span className="w-1/6 py-3 text-center">{guestTableNumber}</span>
         <div className="w-1/6 flex justify-end gap-x-3">
-          <span className="cursor-pointer" onClick={openUpdateModal}>
+          <span
+            className="cursor-pointer rounded-full ring-gray-100 hover:bg-gray-100 hover:ring-7 active:bg-gray-100 active:ring-7 transition"
+            onClick={openUpdateModal}
+          >
             <EditIcon htmlColor="#155dfc" />
             {showUpdateModal && (
               <UpdateModal
@@ -42,7 +45,10 @@ function GuestCard({ guestId, guestFullName, guestTableNumber, refreshData }) {
               />
             )}
           </span>
-          <span className="cursor-pointer" onClick={openDeleteModal}>
+          <span
+            className="cursor-pointer rounded-full ring-gray-100 hover:bg-gray-100 hover:ring-7 active:bg-gray-100 active:ring-7 transition"
+            onClick={openDeleteModal}
+          >
             <DeleteOutlineIcon htmlColor="#f51d28" />
             {showDeleteModal && (
               <DeleteModal
