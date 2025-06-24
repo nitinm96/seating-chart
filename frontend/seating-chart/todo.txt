@@ -1,6 +1,5 @@
 todo list:
-- improve ui of everything lol
 - make comments throughout code
 - initial backspace on table input not working for single table number.
-- add active state for styling on modal buttons and others that dont have
 - when updating user after searching a user. the searched user doesn't update. need to rerender search bar or items.
+- add protected route for admin component.

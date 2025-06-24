@@ -70,7 +70,17 @@ function HomePage() {
     if (results.length == 0) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
-        payload: { error: "No guests found, please see hosts" },
+        payload: {
+          error: (
+            <div>
+              No guests found with search result "<b>{searchedGuest}</b>"
+              <br></br>
+              <div className="mt-3">
+                Please check the spelling, or contact a host.
+              </div>
+            </div>
+          ),
+        },
       });
     }
     setSearchedOutput(results);
@@ -200,8 +210,8 @@ function HomePage() {
 
         {/* Display error message */}
         {state.error && (
-          <div className="flex justify-center p-5 rounded-xl bg-white/80 mt-12">
-            <div className="text-gray-500 text-xs border-b border-gray-500">
+          <div className="flex justify-center p-4 rounded-xl bg-white/80 mt-12">
+            <div className="text-gray-500 text-center text-xs underline">
               {state.errorMessage}
             </div>
           </div>
