@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BuildCircleIcon from "@mui/icons-material/BuildCircle";
@@ -10,6 +10,7 @@ import {
   guestReducer,
   INITIAL_STATE,
 } from "../reducers/guestReducer";
+import { UserContext } from "../context/UserContext";
 
 function HomePage() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ function HomePage() {
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
-
+  const { user } = useContext(UserContext);
   // Fetch all guest data on component mount
   useEffect(() => {
     getAllSeating();
@@ -94,6 +95,10 @@ function HomePage() {
 
   // Toggles password modal visibility
   const openPasswordModal = () => {
+    if (user) {
+      goToAdmin();
+      return;
+    }
     setShowPasswordModal(!showPasswordModal);
   };
   const closePasswordModal = () => {

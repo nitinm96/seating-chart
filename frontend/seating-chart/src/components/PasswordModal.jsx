@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { UserContext } from "../context/UserContext";
 
 function PasswordModal({ goToAdmin, closeModal }) {
+  const { user, setUser, authUser } = useContext(UserContext);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
 
   const validateAdmin = () => {
-    if (password === import.meta.env.VITE_ADMIN_PASS) {
-      setError(false);
+    const result = authUser(password);
+    if (result) {
+      setUser(result);
       goToAdmin();
+    } else {
+      setUser(result);
+      setError(true);
       return;
     }
-    setError(true);
   };
   return (
     <div
