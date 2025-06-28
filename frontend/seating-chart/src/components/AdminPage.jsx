@@ -87,14 +87,12 @@ function AdminPage() {
             <span>Add Guest</span>
           </div>
         </div>
-
         {showAddGuestModal && (
           <AddGuestModal
             closeModal={closeAddGuestModal}
             refreshData={fetchGuests}
           />
         )}
-
         <div className="flex w-full justify-center items-center sm:w-1/3 pl-2 pr-2 py-2 border border-gray-300 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 transition shadow-lg">
           <SearchIcon className="" htmlColor="#9d9d9e" />
           <input
@@ -123,12 +121,12 @@ function AdminPage() {
             : `${searchedOutput.length} guests found`}
         </div>
       </div>
-
       <div className="flex justify-between items-center p-4 font-bold w-full shadow-lg bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white mb-2">
         <span className="w-1/3">Full Name</span>
         <span className="w-1/6 text-center">Table</span>
         <span className="w-1/6 text-right">Action</span>
       </div>
+      {state.loading && <div className="tex-center">loading...</div>}
       <div className="mb-10">
         {state.error ? (
           <div className="flex justify-center items-center p-4">

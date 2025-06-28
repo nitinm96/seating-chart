@@ -11,9 +11,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route index element={<HomePage />} />
-          <Route element={<ProtectedRoutes />}>
-            <Route path="/admin" element={<AdminPage />} />
-          </Route>
+          <Route path="/admin" element={<AdminPage />} />
+          {/* <Route element={<ProtectedRoutes />}></Route> */}
         </Routes>
       </BrowserRouter>
     </UserProvider>

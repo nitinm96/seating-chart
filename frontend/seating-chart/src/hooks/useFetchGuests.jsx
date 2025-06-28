@@ -12,6 +12,8 @@ function useFetchGuests(apiUrl) {
 
   const fetchGuests = async (url) => {
     dispatch({ type: ACTION_TYPES.RESET });
+    dispatch({ type: ACTION_TYPES.IS_LOADING, payload: true });
+
     try {
       const response = await axios.get(url);
       console.log(response);
@@ -27,7 +29,7 @@ function useFetchGuests(apiUrl) {
       const sortedData = [...data.allGuests].sort((a, b) =>
         a.guest_name.localeCompare(b.guest_name)
       );
-
+      dispatch({ type: ACTION_TYPES.IS_LOADING, payload: false });
       setGuestData(sortedData);
     } catch (error) {
       console.error(error.response);

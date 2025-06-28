@@ -4,7 +4,7 @@ export const ACTION_TYPES = {
   GET_GUEST_ADDED: "GET_GUEST_ADDED",
   GET_GUEST_UPDATED: "GET_GUEST_UPDATED",
   GET_GUEST_DELETED: "GET_GUEST_DELETED",
-  LOADING: "LOADING",
+  IS_LOADING: "IS_LOADING",
   GET_ERROR: "GET_ERROR",
   RESET_ERROR: "RESET_ERROR",
   RESET: "RESET",
@@ -53,10 +53,10 @@ export const guestReducer = (state, action) => {
         guestDeleted: true,
         successMessage: `Guest ${action.payload} deleted successfully`,
       };
-    case ACTION_TYPES.LOADING:
+    case ACTION_TYPES.IS_LOADING:
       return {
         ...state,
-        loading: true,
+        loading: action.payload,
       };
     case ACTION_TYPES.GET_ERROR:
       return {
