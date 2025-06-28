@@ -11,52 +11,18 @@ import {
   INITIAL_STATE,
 } from "../reducers/guestReducer";
 import { UserContext } from "../context/UserContext";
+import useFetchGuests from "../hooks/useFetchGuests";
 
 function HomePage() {
   const navigate = useNavigate();
-  const [allGuestData, setAllGuestData] = useState([]);
   const [searchedGuest, setSearchedGuest] = useState("");
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
   const { user } = useContext(UserContext);
-  // Fetch all guest data on component mount
-  useEffect(() => {
-    getAllSeating();
-  }, []);
 
-  // API call to fetch all guest records
-  const getAllSeating = async () => {
-    try {
-      // Reset state
-      dispatch({ type: ACTION_TYPES.RESET });
-
-      const API_URL =
-        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
-      const response = await axios.get(`${API_URL}`);
-      const data = response.data;
-
-      // Handle empty response
-      if (data.guestCount == 0) {
-        dispatch({
-          type: ACTION_TYPES.GET_ERROR,
-          payload: { error: data?.error || "No guests found in database" },
-        });
-        return;
-      }
-
-      // Sort guest list alphabetically
-      const sortedData = [...data.allGuests].sort((a, b) =>
-        a.guest_name.localeCompare(b.guest_name)
-      );
-      setAllGuestData(sortedData);
-    } catch (error) {
-      const errMsg =
-        error.response?.data?.error ||
-        "Something went wrong, Please try again later.";
-      dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
-    }
-  };
+  const API_URL =
+    import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
+  const { guestData, state, dispatch } = useFetchGuests(API_URL);
 
   // Filter and display matching guests based on input
   function findGuest(e) {
@@ -64,7 +30,7 @@ function HomePage() {
     dispatch({ type: ACTION_TYPES.RESET_ERROR });
 
     const search = searchedGuest.toLowerCase().trim();
-    const results = allGuestData.filter((guest) =>
+    const results = guestData.filter((guest) =>
       guest.guest_name.toLowerCase().includes(search)
     );
 

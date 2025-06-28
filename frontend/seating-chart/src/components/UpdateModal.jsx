@@ -47,14 +47,14 @@ function UpdateModal({
 
     try {
       const API_URL =
-        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
+        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/ap/guests";
       const response = await axios.put(`${API_URL}/${id}`, {
         fullName: cleanName,
         tableNumber: clean_table_number,
       });
       console.log(response);
       dispatch({ type: ACTION_TYPES.GET_GUEST_UPDATED });
-      refreshData();
+      refreshData(API_URL);
       setTimeout(() => {
         closeModal();
       }, 1500);
@@ -121,7 +121,7 @@ function UpdateModal({
                 />
               </div>
               {state.error && (
-                <p className="text-red-500">{state.errorMessage}</p>
+                <p className="text-red-500 text-sm">{state.errorMessage}</p>
               )}
               <div className="flex justify-center items-center gap-x-6">
                 <button

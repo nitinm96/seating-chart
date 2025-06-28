@@ -21,7 +21,7 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
 
       dispatch({ type: ACTION_TYPES.GET_GUEST_DELETED, payload: guestName });
 
-      refreshData();
+      refreshData(API_URL);
       setTimeout(() => {
         closeModal();
       }, 1500);
@@ -46,6 +46,9 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
           <>
             <div className="font-bold text-xl">Confirm Delete</div>
             <div>Are you sure you want to delete {guestName}?</div>
+            {state.error && (
+              <div className="text-red-500 text-sm">{state.errorMessage}</div>
+            )}
             <div className="flex justify-center items-center gap-x-6">
               <button
                 type="button"

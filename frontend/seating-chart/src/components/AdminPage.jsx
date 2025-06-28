@@ -1,5 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
-import axios, { all } from "axios";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import AddIcon from "@mui/icons-material/Add";
@@ -7,81 +6,57 @@ import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import GuestCard from "./GuestCard";
 import AddGuestModal from "./AddGuestModal";
-import {
-  ACTION_TYPES,
-  guestReducer,
-  INITIAL_STATE,
-} from "../reducers/guestReducer";
+import { ACTION_TYPES } from "../reducers/guestReducer";
+import useFetchGuests from "../hooks/useFetchGuests";
 
 function AdminPage() {
   const navigate = useNavigate();
-  const [allGuestData, setAllGuestData] = useState([]);
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [search, setSearch] = useState("");
   const [viewAllGuests, setViewAllGuests] = useState(true);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
-  const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
-  useEffect(() => {
-    getAllGuests();
-  }, []);
-
-  const getAllGuests = async () => {
-    try {
-      dispatch({ type: ACTION_TYPES.RESET });
-      const API_URL =
-        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
-      const response = await axios.get(`${API_URL}`);
-      console.log(response);
-      const data = response.data;
-
-      if (data.guestCount == 0) {
-        dispatch({
-          type: ACTION_TYPES.GET_ERROR,
-          payload: { error: data?.error || "No guests found in database" },
-        });
-        return;
-      }
-      const sortedData = [...data.allGuests].sort((a, b) =>
-        a.guest_name.localeCompare(b.guest_name)
-      );
-      setAllGuestData(sortedData);
-    } catch (error) {
-      console.error(error.response);
-      const errMsg =
-        error.response?.data?.error ||
-        "Something went wrong, Please try again later.";
-      dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
-    }
-  };
+  const API_URL =
+    import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
+  const { guestData, state, dispatch, fetchGuests } = useFetchGuests(API_URL);
 
   const findGuest = (e) => {
-    dispatch({ type: ACTION_TYPES.RESET_ERROR });
-    const search = e.target.value.trim().toLowerCase();
+    const input = e.target.value;
+    const search = input.toLowerCase();
+
+    // Avoid unnecessary dispatch or state updates
+    if (state.error && search.length > 0) {
+      dispatch({ type: ACTION_TYPES.RESET_ERROR });
+    }
+
     setSearch(search);
-    // Show all guests if search is too short
-    if (search.length < 1) {
+
+    if (search === "") {
       setViewAllGuests(true);
       setSearchedOutput([]);
       return;
     }
-    const results = allGuestData.filter((guest) => {
-      const nameMatch = guest.guest_name.toLowerCase().includes(search);
-      const tableMatch = guest.table_number.toString() === search;
-      return nameMatch || tableMatch;
+
+    const results = guestData.filter((guest) => {
+      const name = guest.guest_name?.toLowerCase() || "";
+      const table = guest.table_number?.toString() || "";
+      return name.includes(search) || table === search;
     });
-    if (results.length == 0 && search.length > 0) {
+
+    if (results.length === 0) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
         payload: { error: "No guests found..." },
       });
     }
+
     setSearchedOutput(results);
     setViewAllGuests(false);
   };
 
   const handleResetSearch = () => {
     setSearch("");
+    if (state.error) dispatch({ type: ACTION_TYPES.RESET_ERROR });
     setViewAllGuests(true);
   };
   const goToHome = () => {
@@ -112,10 +87,11 @@ function AdminPage() {
             <span>Add Guest</span>
           </div>
         </div>
+
         {showAddGuestModal && (
           <AddGuestModal
-            refreshData={getAllGuests}
             closeModal={closeAddGuestModal}
+            refreshData={fetchGuests}
           />
         )}
 
@@ -143,7 +119,7 @@ function AdminPage() {
           {state.error
             ? "Total Guest Count: 0"
             : viewAllGuests
-            ? `Total Guest Count: ${allGuestData.length}`
+            ? `Total Guest Count: ${guestData.length}`
             : `${searchedOutput.length} guests found`}
         </div>
       </div>
@@ -161,13 +137,13 @@ function AdminPage() {
             </div>
           </div>
         ) : viewAllGuests ? (
-          allGuestData.map((guest, index) => (
+          guestData.map((guest, index) => (
             <div key={index}>
               <GuestCard
                 guestId={guest.guest_id}
                 guestFullName={guest.guest_name}
                 guestTableNumber={guest.table_number}
-                refreshData={getAllGuests}
+                refreshData={fetchGuests}
               />
             </div>
           ))
@@ -178,7 +154,7 @@ function AdminPage() {
                 guestId={guest.guest_id}
                 guestFullName={guest.guest_name}
                 guestTableNumber={guest.table_number}
-                refreshData={getAllGuests}
+                refreshData={fetchGuests}
               />
             </div>
           ))

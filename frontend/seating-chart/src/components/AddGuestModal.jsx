@@ -7,7 +7,7 @@ import {
   INITIAL_STATE,
 } from "../reducers/guestReducer";
 
-function AddGuestModal({ refreshData, closeModal }) {
+function AddGuestModal({ closeModal, refreshData }) {
   const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
   const addGuest = async () => {
@@ -38,7 +38,7 @@ function AddGuestModal({ refreshData, closeModal }) {
       console.log(response.data);
       //refresh data, close modal
       dispatch({ type: ACTION_TYPES.GET_GUEST_ADDED });
-      refreshData();
+      refreshData(API_URL);
 
       //set delay to show success message
       setTimeout(() => {
@@ -47,7 +47,7 @@ function AddGuestModal({ refreshData, closeModal }) {
     } catch (error) {
       console.error(error.response);
       const errMsg =
-        error.response?.data?.error ||
+        error?.response?.data?.error ||
         "Something went wrong. Please try again.";
       dispatch({ type: ACTION_TYPES.GET_ERROR, payload: { error: errMsg } });
     }
@@ -102,7 +102,7 @@ function AddGuestModal({ refreshData, closeModal }) {
                 />
               </div>
               {state.error && (
-                <p className="text-red-500">{state.errorMessage}</p>
+                <p className="text-red-500 text-sm">{state.errorMessage}</p>
               )}
               <div className="flex justify-between items-center gap-x-6">
                 <button
