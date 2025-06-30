@@ -1,7 +1,4 @@
 todo list:
 - make comments throughout code
 - initial backspace on table number input not working for single table number.
-- when updating user after searching a user. the searched user doesn't update. need to rerender search bar or items.
 - user showing up as false for protected route even after setting it to true.
-- add debouncing for find guest on change event handler
-- add loading states for api fetching

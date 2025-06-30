@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BuildCircleIcon from "@mui/icons-material/BuildCircle";
 import SearchIcon from "@mui/icons-material/Search";
@@ -15,33 +14,36 @@ import useFetchGuests from "../hooks/useFetchGuests";
 
 function HomePage() {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+
+  // State
   const [searchedGuest, setSearchedGuest] = useState("");
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const { user } = useContext(UserContext);
 
+  // Data & state from custom fetch hook
   const API_URL =
     import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
   const { guestData, state, dispatch } = useFetchGuests(API_URL);
 
-  // Filter and display matching guests based on input
-  function findGuest(e) {
+  // Search handler
+  const findGuest = (e) => {
     e.preventDefault();
     dispatch({ type: ACTION_TYPES.RESET_ERROR });
 
-    const search = searchedGuest.toLowerCase().trim();
+    const query = searchedGuest.toLowerCase().trim();
     const results = guestData.filter((guest) =>
-      guest.guest_name.toLowerCase().includes(search)
+      guest.guest_name.toLowerCase().includes(query)
     );
 
-    if (results.length == 0) {
+    if (results.length === 0) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
         payload: {
           error: (
             <div>
               No guests found with search result "<b>{searchedGuest}</b>"
-              <br></br>
+              <br />
               <div className="mt-3">
                 Please check the spelling, or contact a host.
               </div>
@@ -50,42 +52,29 @@ function HomePage() {
         },
       });
     }
-    setSearchedOutput(results);
-  }
 
-  // Clears input field and any visible errors
+    setSearchedOutput(results);
+  };
+
+  // Reset search input and error state
   const handleResetSearch = () => {
     setSearchedGuest("");
-    if (state.error) dispatch({ type: ACTION_TYPES.RESET_ERROR });
+    if (state.error) {
+      dispatch({ type: ACTION_TYPES.RESET_ERROR });
+    }
   };
 
-  // Toggles password modal visibility
+  // Admin access logic
   const openPasswordModal = () => {
-    if (user) {
-      goToAdmin();
-      return;
-    }
-    setShowPasswordModal(!showPasswordModal);
-  };
-  const closePasswordModal = () => {
-    setShowPasswordModal(!showPasswordModal);
+    user ? navigate("/admin") : setShowPasswordModal(true);
   };
 
-  // Redirects to /admin route
-  const goToAdmin = () => {
-    navigate("/admin");
-  };
+  const closePasswordModal = () => setShowPasswordModal(false);
 
-  // Fun easter egg (not currently hooked into UI)
+  // Optional easter egg
   const funAnimation = (guest) => {
-    switch (guest) {
-      case "Nitin Minhas":
-        alert("YOU'RE THE GROOM");
-      case "Lavanya Verma":
-        alert("YOU'RE THE BRIDE");
-      default:
-        break;
-    }
+    if (guest === "Nitin Minhas") alert("YOU'RE THE GROOM");
+    if (guest === "Lavanya Verma") alert("YOU'RE THE BRIDE");
   };
 
   return (

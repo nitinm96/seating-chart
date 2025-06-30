@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
+import debounce from "lodash.debounce";
 import GuestCard from "./GuestCard";
 import AddGuestModal from "./AddGuestModal";
 import { ACTION_TYPES } from "../reducers/guestReducer";
@@ -11,63 +18,94 @@ import useFetchGuests from "../hooks/useFetchGuests";
 
 function AdminPage() {
   const navigate = useNavigate();
-  const [searchedOutput, setSearchedOutput] = useState([]);
+
+  // UI State
   const [search, setSearch] = useState("");
+  const [searchedOutput, setSearchedOutput] = useState([]);
   const [viewAllGuests, setViewAllGuests] = useState(true);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
 
+  // API & Guest Data
   const API_URL =
     import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
   const { guestData, state, dispatch, fetchGuests } = useFetchGuests(API_URL);
 
-  const findGuest = (e) => {
-    const input = e.target.value;
-    const search = input.toLowerCase();
+  // Keep latest error state in ref to prevent stale closure issues in debounce
+  const errorRef = useRef(state.error);
+  useEffect(() => {
+    errorRef.current = state.error;
+  }, [state.error]);
 
-    // Avoid unnecessary dispatch or state updates
-    if (state.error && search.length > 0) {
-      dispatch({ type: ACTION_TYPES.RESET_ERROR });
-    }
-
-    setSearch(search);
-
-    if (search === "") {
-      setViewAllGuests(true);
-      setSearchedOutput([]);
-      return;
-    }
-
-    const results = guestData.filter((guest) => {
-      const name = guest.guest_name?.toLowerCase() || "";
-      const table = guest.table_number?.toString() || "";
-      return name.includes(search) || table === search;
-    });
-
-    if (results.length === 0) {
-      dispatch({
-        type: ACTION_TYPES.GET_ERROR,
-        payload: { error: "No guests found..." },
-      });
-    }
-
-    setSearchedOutput(results);
-    setViewAllGuests(false);
-  };
-
+  // Utility: Reset UI state
   const handleResetSearch = () => {
     setSearch("");
-    if (state.error) dispatch({ type: ACTION_TYPES.RESET_ERROR });
+    setSearchedOutput([]);
     setViewAllGuests(true);
+    if (errorRef.current) dispatch({ type: ACTION_TYPES.RESET_ERROR });
   };
-  const goToHome = () => {
-    navigate("/");
+
+  // Search Logic (Debounced)
+  const findGuest = useCallback(
+    (searchInput) => {
+      const query = searchInput.toLowerCase().trim();
+      if (query === "") {
+        debouncedSearch.cancel();
+        handleResetSearch();
+        return;
+      }
+
+      const results = guestData.filter((guest) => {
+        const name = guest.guest_name?.toLowerCase().includes(query);
+        const table = guest.table_number?.toString() === query;
+        return name || table;
+      });
+
+      if (results.length === 0) {
+        dispatch({
+          type: ACTION_TYPES.GET_ERROR,
+          payload: { error: "No guests found..." },
+        });
+      } else if (errorRef.current) {
+        dispatch({ type: ACTION_TYPES.RESET_ERROR });
+      }
+
+      setSearchedOutput(results);
+      setViewAllGuests(false);
+    },
+    [guestData, dispatch]
+  );
+
+  // Debounce the search
+  const debouncedSearch = useMemo(() => debounce(findGuest, 300), [findGuest]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
+  // Input handler
+  const handleInputChange = (e) => {
+    const input = e.target.value;
+    setSearch(input);
+    debouncedSearch(input);
   };
-  const openAddGuestModal = () => {
-    setShowAddGuestModal(true);
-  };
-  const closeAddGuestModal = () => {
-    setShowAddGuestModal(false);
-  };
+
+  // Re-run search if guest data is refreshed externally (e.g. after add/update/delete)
+  useEffect(() => {
+    if (search.trim()) {
+      findGuest(search);
+    }
+  }, [guestData]); // safe because findGuest is stable via useCallback
+
+  // toggle add guest model
+  const openAddGuestModal = () => setShowAddGuestModal(true);
+  const closeAddGuestModal = () => setShowAddGuestModal(false);
+
+  // Navigation
+  const goToHome = () => navigate("/");
+
   return (
     <div>
       <div className="flex flex-col justify-start items-start m-7 gap-y-6">
@@ -102,7 +140,7 @@ function AdminPage() {
             value={search}
             autoFocus
             type="text"
-            onChange={findGuest}
+            onChange={(e) => handleInputChange(e)}
           />
           {search.length > 0 && (
             <CloseIcon

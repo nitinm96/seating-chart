@@ -47,19 +47,19 @@ function UpdateModal({
 
     try {
       const API_URL =
-        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/ap/guests";
+        import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
       const response = await axios.put(`${API_URL}/${id}`, {
         fullName: cleanName,
         tableNumber: clean_table_number,
       });
       console.log(response);
       dispatch({ type: ACTION_TYPES.GET_GUEST_UPDATED });
-      refreshData(API_URL);
+      await refreshData(API_URL);
       setTimeout(() => {
         closeModal();
       }, 1500);
     } catch (error) {
-      console.error(error.response);
+      console.error(error);
       const errMsg =
         error.response?.data?.error ||
         "Something went wrong. Please try again.";
