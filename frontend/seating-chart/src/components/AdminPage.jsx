@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -15,6 +16,7 @@ import GuestCard from "./GuestCard";
 import AddGuestModal from "./AddGuestModal";
 import { ACTION_TYPES } from "../reducers/guestReducer";
 import useFetchGuests from "../hooks/useFetchGuests";
+import { GuestDataContext } from "../context/GuestDataContext";
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -28,7 +30,8 @@ function AdminPage() {
   // API & Guest Data
   const API_URL =
     import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
-  const { guestData, state, dispatch, fetchGuests } = useFetchGuests(API_URL);
+  const { state, dispatch, fetchGuests } = useFetchGuests(API_URL, false);
+  const { guests } = useContext(GuestDataContext);
 
   // Keep latest error state in ref to prevent stale closure issues in debounce
   const errorRef = useRef(state.error);
@@ -54,7 +57,7 @@ function AdminPage() {
         return;
       }
 
-      const results = guestData.filter((guest) => {
+      const results = guests.filter((guest) => {
         const name = guest.guest_name?.toLowerCase().includes(query);
         const table = guest.table_number?.toString() === query;
         return name || table;
@@ -72,7 +75,7 @@ function AdminPage() {
       setSearchedOutput(results);
       setViewAllGuests(false);
     },
-    [guestData, dispatch]
+    [guests, dispatch]
   );
 
   // Debounce the search
@@ -97,7 +100,7 @@ function AdminPage() {
     if (search.trim()) {
       findGuest(search);
     }
-  }, [guestData]); // safe because findGuest is stable via useCallback
+  }, [guests]); // safe because findGuest is stable via useCallback
 
   // toggle add guest model
   const openAddGuestModal = () => setShowAddGuestModal(true);
@@ -155,7 +158,7 @@ function AdminPage() {
           {state.error
             ? "Total Guest Count: 0"
             : viewAllGuests
-            ? `Total Guest Count: ${guestData.length}`
+            ? `Total Guest Count: ${guests.length}`
             : `${searchedOutput.length} guests found`}
         </div>
       </div>
@@ -173,7 +176,7 @@ function AdminPage() {
             </div>
           </div>
         ) : viewAllGuests ? (
-          guestData.map((guest, index) => (
+          guests.map((guest, index) => (
             <div key={index}>
               <GuestCard
                 guestId={guest.guest_id}

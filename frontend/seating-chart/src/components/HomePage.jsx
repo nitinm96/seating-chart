@@ -11,20 +11,37 @@ import {
 } from "../reducers/guestReducer";
 import { UserContext } from "../context/UserContext";
 import useFetchGuests from "../hooks/useFetchGuests";
+import { GuestDataContext } from "../context/GuestDataContext";
+import GiftModal from "./GiftModal";
 
+const bridalPartyMap = {
+  "Prem Khullar": "https://media.tenor.com/X15e67QrANUAAAAM/the-office.gif",
+  "Varun Gupta":
+    "https://hips.hearstapps.com/digitalspyuk.cdnds.net/17/18/1493803594-source.gif",
+  "Aseem Bhuri":
+    "https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUyenBwdWo3a3RvZnV3dzRrc3Nqc3A5dXN3bmF1aXZuZm5mdXl5bm5sbSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/OzqcZGIFtKWdUdQYSi/giphy-downsized-medium.gif",
+  "Moksh Bhuri":
+    "https://i.pinimg.com/originals/86/f2/3f/86f23fcc40ffd501b2064ecc0eb7e99c.gif",
+  "Gurpreet Chatha":
+    "https://blog.opiumworks.com/hs-fs/hubfs/Opium%20Works%20Calendar%202023/June%202023/barbie2.gif",
+  // add more as needed
+};
 function HomePage() {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   // State
   const [searchedGuest, setSearchedGuest] = useState("");
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showGifModal, setShowGifModal] = useState(false);
+  const [gifGuest, setGifGuest] = useState({ name: "", gif: "" });
 
   // Data & state from custom fetch hook
   const API_URL =
     import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
-  const { guestData, state, dispatch } = useFetchGuests(API_URL);
+  const { state, dispatch } = useFetchGuests(API_URL);
+  const { guests } = useContext(GuestDataContext);
 
   // Search handler
   const findGuest = (e) => {
@@ -32,7 +49,7 @@ function HomePage() {
     dispatch({ type: ACTION_TYPES.RESET_ERROR });
 
     const query = searchedGuest.toLowerCase().trim();
-    const results = guestData.filter((guest) =>
+    const results = guests.filter((guest) =>
       guest.guest_name.toLowerCase().includes(query)
     );
 
@@ -59,6 +76,7 @@ function HomePage() {
   // Reset search input and error state
   const handleResetSearch = () => {
     setSearchedGuest("");
+    setSearchedOutput([]);
     if (state.error) {
       dispatch({ type: ACTION_TYPES.RESET_ERROR });
     }
@@ -66,16 +84,34 @@ function HomePage() {
 
   // Admin access logic
   const openPasswordModal = () => {
-    user ? navigate("/admin") : setShowPasswordModal(true);
+    const authed = localStorage.getItem("user");
+    if (authed) {
+      setUser(true);
+      goToAdmin();
+    }
+    if (user) return goToAdmin();
+    setShowPasswordModal(true);
   };
 
   const closePasswordModal = () => setShowPasswordModal(false);
 
-  // Optional easter egg
-  const funAnimation = (guest) => {
-    if (guest === "Nitin Minhas") alert("YOU'RE THE GROOM");
-    if (guest === "Lavanya Verma") alert("YOU'RE THE BRIDE");
-  };
+  const openGifModal = () => setShowGifModal(true);
+  const closeGifModal = () => setShowGifModal(false);
+
+  const goToAdmin = () => navigate("/admin");
+
+  useEffect(() => {
+    const found = searchedOutput.find((guest) =>
+      Object.keys(bridalPartyMap).includes(guest.guest_name)
+    );
+    if (found) {
+      setGifGuest({
+        name: found.guest_name,
+        gif: bridalPartyMap[found.guest_name],
+      });
+      openGifModal();
+    }
+  }, [searchedOutput]);
 
   return (
     <div className="min-h-screen bg-[url(/assets/backgroundImg.jpg)] bg-cover bg-center">
@@ -103,7 +139,6 @@ function HomePage() {
           <div className="text-xl text-center text-white">
             Please enter full name or surname to find your table number below:
           </div>
-
           <form
             method="post"
             onSubmit={findGuest}
@@ -143,7 +178,13 @@ function HomePage() {
             </button>
           </form>
         </div>
-
+        {showGifModal && gifGuest && (
+          <GiftModal
+            gifLink={gifGuest.gif}
+            closeModal={closeGifModal}
+            guestName={gifGuest.name}
+          />
+        )}
         {/* Search results */}
         {searchedOutput.length !== 0 && (
           <div className=" bg-white/85 rounded-lg shadow-sm px-8 py-4 mt-4 mb-16">

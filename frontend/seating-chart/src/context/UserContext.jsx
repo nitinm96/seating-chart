@@ -8,6 +8,7 @@ export const UserProvider = ({ children }) => {
   const authUser = (userPassword) => {
     return userPassword === import.meta.env.VITE_ADMIN_PASS;
   };
+
   return (
     <UserContext.Provider value={{ user, setUser, authUser }}>
       {children}
