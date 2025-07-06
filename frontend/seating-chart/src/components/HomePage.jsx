@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BuildCircleIcon from "@mui/icons-material/BuildCircle";
 import SearchIcon from "@mui/icons-material/Search";
@@ -18,10 +18,13 @@ const bridalPartyMap = {
   "Prem Khullar": "https://media.tenor.com/X15e67QrANUAAAAM/the-office.gif",
   "Varun Gupta":
     "https://hips.hearstapps.com/digitalspyuk.cdnds.net/17/18/1493803594-source.gif",
-  "Aseem Bhuri":
-    "https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUyenBwdWo3a3RvZnV3dzRrc3Nqc3A5dXN3bmF1aXZuZm5mdXl5bm5sbSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/OzqcZGIFtKWdUdQYSi/giphy-downsized-medium.gif",
+  "Aseem Bhuri": "https://i.makeagif.com/media/4-24-2023/j2yxiN.gif",
   "Moksh Bhuri":
     "https://i.pinimg.com/originals/86/f2/3f/86f23fcc40ffd501b2064ecc0eb7e99c.gif",
+  "Yatin Dhawan":
+    "https://media.tenor.com/I44ftd7STHcAAAAM/stenchpreet-jus-reign.gif",
+  "Sameer Krishan":
+    "https://images.steamusercontent.com/ugc/266105270676560197/23EBF78D4D3F1C99E4175D56B633A8D0D9743F32/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false",
   "Gurpreet Chatha":
     "https://blog.opiumworks.com/hs-fs/hubfs/Opium%20Works%20Calendar%202023/June%202023/barbie2.gif",
   // add more as needed
@@ -35,7 +38,7 @@ function HomePage() {
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showGifModal, setShowGifModal] = useState(false);
-  const [gifGuest, setGifGuest] = useState({ name: "", gif: "" });
+  const [gifGuest, setGifGuest] = useState("");
 
   // Data & state from custom fetch hook
   const API_URL =
@@ -105,10 +108,7 @@ function HomePage() {
       Object.keys(bridalPartyMap).includes(guest.guest_name)
     );
     if (found) {
-      setGifGuest({
-        name: found.guest_name,
-        gif: bridalPartyMap[found.guest_name],
-      });
+      setGifGuest(bridalPartyMap[found.guest_name]);
       openGifModal();
     }
   }, [searchedOutput]);
@@ -179,11 +179,7 @@ function HomePage() {
           </form>
         </div>
         {showGifModal && gifGuest && (
-          <GiftModal
-            gifLink={gifGuest.gif}
-            closeModal={closeGifModal}
-            guestName={gifGuest.name}
-          />
+          <GiftModal gifLink={gifGuest} closeModal={closeGifModal} />
         )}
         {/* Search results */}
         {searchedOutput.length !== 0 && (
