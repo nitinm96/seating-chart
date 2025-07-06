@@ -1,7 +1,8 @@
 import React from "react";
 import CloseIcon from "@mui/icons-material/Close";
 
-function GiftModal({ gifLink, closeModal }) {
+function GiftModal({ gifGuest, closeModal }) {
+  const { name, side, gifLink } = gifGuest;
   return (
     <div
       className="fixed inset-0 flex justify-center items-center bg-black/50 z-50 px-4"
@@ -18,11 +19,18 @@ function GiftModal({ gifLink, closeModal }) {
 
         {/* Title */}
         <div className="text-center mb-4">
-          <h2 className="text-xl font-bold text-blue-600">
-            🎉 Bridal Party's Here! 🎉
+          <h2
+            className={
+              side === "groomsmen"
+                ? "text-xl font-bold text-blue-500"
+                : "text-xl font-bold text-pink-500"
+            }
+          >
+            🎉 Welcome {name} 🎉
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Go grab a drink and we'll see you shortly 😀
+            Thank you for being my {side}! Find your table and we'll see you
+            shortly 😀
           </p>
         </div>
 
@@ -31,7 +39,7 @@ function GiftModal({ gifLink, closeModal }) {
           <img
             src={gifLink}
             alt="Celebration Gif"
-            className="w-full rounded-lg "
+            className="max-h-64 w-auto object-contain rounded-lg"
           />
         </div>
       </div>

@@ -13,22 +13,8 @@ import { UserContext } from "../context/UserContext";
 import useFetchGuests from "../hooks/useFetchGuests";
 import { GuestDataContext } from "../context/GuestDataContext";
 import GiftModal from "./GiftModal";
+import bridalPartyData from "../util/bridalPartyData.json";
 
-const bridalPartyMap = {
-  "Prem Khullar": "https://media.tenor.com/X15e67QrANUAAAAM/the-office.gif",
-  "Varun Gupta":
-    "https://hips.hearstapps.com/digitalspyuk.cdnds.net/17/18/1493803594-source.gif",
-  "Aseem Bhuri": "https://i.makeagif.com/media/4-24-2023/j2yxiN.gif",
-  "Moksh Bhuri":
-    "https://i.pinimg.com/originals/86/f2/3f/86f23fcc40ffd501b2064ecc0eb7e99c.gif",
-  "Yatin Dhawan":
-    "https://media.tenor.com/I44ftd7STHcAAAAM/stenchpreet-jus-reign.gif",
-  "Sameer Krishan":
-    "https://images.steamusercontent.com/ugc/266105270676560197/23EBF78D4D3F1C99E4175D56B633A8D0D9743F32/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false",
-  "Gurpreet Chatha":
-    "https://blog.opiumworks.com/hs-fs/hubfs/Opium%20Works%20Calendar%202023/June%202023/barbie2.gif",
-  // add more as needed
-};
 function HomePage() {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
@@ -38,7 +24,7 @@ function HomePage() {
   const [searchedOutput, setSearchedOutput] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showGifModal, setShowGifModal] = useState(false);
-  const [gifGuest, setGifGuest] = useState("");
+  const [gifGuest, setGifGuest] = useState({ name: "", side: "", gifLink: "" });
 
   // Data & state from custom fetch hook
   const API_URL =
@@ -56,23 +42,24 @@ function HomePage() {
       guest.guest_name.toLowerCase().includes(query)
     );
 
+    const getNoGuestError = (name) => (
+      <div>
+        No guests found with search result "<b>{name}</b>"
+        <br />
+        <div className="mt-3">
+          Please check the spelling, or contact a host.
+        </div>
+      </div>
+    );
+
     if (results.length === 0) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
         payload: {
-          error: (
-            <div>
-              No guests found with search result "<b>{searchedGuest}</b>"
-              <br />
-              <div className="mt-3">
-                Please check the spelling, or contact a host.
-              </div>
-            </div>
-          ),
+          error: getNoGuestError(searchedGuest),
         },
       });
     }
-
     setSearchedOutput(results);
   };
 
@@ -97,18 +84,23 @@ function HomePage() {
   };
 
   const closePasswordModal = () => setShowPasswordModal(false);
-
   const openGifModal = () => setShowGifModal(true);
   const closeGifModal = () => setShowGifModal(false);
 
   const goToAdmin = () => navigate("/admin");
 
   useEffect(() => {
-    const found = searchedOutput.find((guest) =>
-      Object.keys(bridalPartyMap).includes(guest.guest_name)
+    const bridalMatch = bridalPartyData.find((b) =>
+      searchedOutput.some(
+        (guest) => b.name.toLowerCase() === guest.guest_name.toLowerCase()
+      )
     );
-    if (found) {
-      setGifGuest(bridalPartyMap[found.guest_name]);
+    if (bridalMatch) {
+      setGifGuest({
+        name: bridalMatch.name,
+        side: bridalMatch.side,
+        gifLink: bridalMatch.gifLink,
+      });
       openGifModal();
     }
   }, [searchedOutput]);
@@ -179,7 +171,7 @@ function HomePage() {
           </form>
         </div>
         {showGifModal && gifGuest && (
-          <GiftModal gifLink={gifGuest} closeModal={closeGifModal} />
+          <GiftModal gifGuest={gifGuest} closeModal={closeGifModal} />
         )}
         {/* Search results */}
         {searchedOutput.length !== 0 && (
