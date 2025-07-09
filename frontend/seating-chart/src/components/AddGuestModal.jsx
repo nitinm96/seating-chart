@@ -10,23 +10,33 @@ import {
 function AddGuestModal({ closeModal, refreshData }) {
   const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
-  const addGuest = async () => {
-    //reset state
-    dispatch({ type: ACTION_TYPES.RESET });
-
-    const guest_name = state.guestName;
+  //validate user entered data
+  function validateGuestInfo() {
+    //validate user inputs
+    let cleanName = state.guestName;
     const clean_table_number = parseInt(state.tableNumber);
-    //validate input fields
-    if (guest_name == "" || !clean_table_number) {
+
+    if (cleanName == "" || !clean_table_number) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
         payload: { error: "Input all fields correctly" },
       });
-      return;
+      return { cleanName, clean_table_number };
     }
-    const cleanName = CaptializeFullName(guest_name);
+    //sanitize names so first letters of firstname and lastname are capitalized
+    cleanName = CaptializeFullName(cleanName);
 
-    console.log(cleanName, clean_table_number);
+    return { cleanName, clean_table_number };
+  }
+
+  const addGuest = async () => {
+    //reset state
+    dispatch({ type: ACTION_TYPES.RESET });
+
+    const { cleanName, clean_table_number } = validateGuestInfo();
+    if (!cleanName || !clean_table_number) return;
+    console.log(`adding guest: ${cleanName} at table ${clean_table_number}`);
+
     //add guest post request
     try {
       const API_URL =
@@ -38,7 +48,7 @@ function AddGuestModal({ closeModal, refreshData }) {
       console.log(response.data);
       //refresh data, close modal
       dispatch({ type: ACTION_TYPES.GET_GUEST_ADDED });
-      refreshData(API_URL);
+      await refreshData(API_URL);
 
       //set delay to show success message
       setTimeout(() => {

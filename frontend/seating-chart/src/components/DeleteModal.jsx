@@ -6,13 +6,19 @@ import {
   ACTION_TYPES,
 } from "../reducers/guestReducer";
 
-function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
+function DeleteModal({
+  guestId,
+  guestName,
+  guestTableNumber,
+  closeModal,
+  refreshData,
+}) {
   const [state, dispatch] = useReducer(guestReducer, INITIAL_STATE);
 
   const deleteGuest = async (id) => {
     //reset state
     dispatch({ type: ACTION_TYPES.RESET });
-
+    console.log(`deleting guest: ${guestName} at table ${guestTableNumber}`);
     try {
       const API_URL =
         import.meta.env.VITE_BACKEND_API || "http://localhost:5001/api/guests";
@@ -21,7 +27,8 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
 
       dispatch({ type: ACTION_TYPES.GET_GUEST_DELETED, payload: guestName });
 
-      refreshData(API_URL);
+      await refreshData(API_URL);
+
       setTimeout(() => {
         closeModal();
       }, 1500);
@@ -45,7 +52,9 @@ function DeleteModal({ guestId, guestName, closeModal, refreshData }) {
         ) : (
           <>
             <div className="font-bold text-xl">Confirm Delete</div>
-            <div>Are you sure you want to delete {guestName}?</div>
+            <div>
+              {`Are you sure you want to delete ${guestName} from guest list?`}
+            </div>
             {state.error && (
               <div className="text-red-500 text-sm">{state.errorMessage}</div>
             )}

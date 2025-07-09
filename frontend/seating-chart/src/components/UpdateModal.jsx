@@ -26,24 +26,31 @@ function UpdateModal({
     });
   }, []);
 
-  const editGuest = async (id) => {
-    //reset state
-    dispatch({ type: ACTION_TYPES.RESET });
-
+  //validate user entered data
+  function validateGuestInfo() {
     //validate user inputs
-    const guest_name = state.guestName;
+    let cleanName = state.guestName;
     const clean_table_number = parseInt(state.tableNumber);
 
-    if (guest_name == "" || !clean_table_number) {
+    if (cleanName == "" || !clean_table_number) {
       dispatch({
         type: ACTION_TYPES.GET_ERROR,
         payload: { error: "Input all fields correctly" },
       });
-      return;
+      return { cleanName, clean_table_number };
     }
     //sanitize names so first letters of firstname and lastname are capitalized
-    const cleanName = CaptializeFullName(guest_name);
-    console.log(id, cleanName, clean_table_number);
+    cleanName = CaptializeFullName(cleanName);
+
+    return { cleanName, clean_table_number };
+  }
+
+  const editGuest = async (id) => {
+    //reset state
+    dispatch({ type: ACTION_TYPES.RESET });
+    const { cleanName, clean_table_number } = validateGuestInfo();
+    if (!cleanName || !clean_table_number) return;
+    console.log(`editing guest: ${cleanName} at table ${clean_table_number}`);
 
     try {
       const API_URL =
@@ -55,6 +62,7 @@ function UpdateModal({
       console.log(response);
       dispatch({ type: ACTION_TYPES.GET_GUEST_UPDATED });
       await refreshData(API_URL);
+
       setTimeout(() => {
         closeModal();
       }, 1500);

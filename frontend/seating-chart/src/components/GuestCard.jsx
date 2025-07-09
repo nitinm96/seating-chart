@@ -54,6 +54,7 @@ function GuestCard({ guestId, guestFullName, guestTableNumber, refreshData }) {
               <DeleteModal
                 guestId={guestId}
                 guestName={guestFullName}
+                guestTableNumber={guestTableNumber}
                 closeModal={closeDeleteModal}
                 refreshData={refreshData}
               />
