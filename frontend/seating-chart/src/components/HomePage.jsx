@@ -84,26 +84,27 @@ function HomePage() {
   };
 
   const closePasswordModal = () => setShowPasswordModal(false);
-  const openGifModal = () => setShowGifModal(true);
-  const closeGifModal = () => setShowGifModal(false);
 
   const goToAdmin = () => navigate("/admin");
 
-  useEffect(() => {
-    const bridalMatch = bridalPartyData.find((b) =>
-      searchedOutput.some(
-        (guest) => b.name.toLowerCase() === guest.guest_name.toLowerCase()
-      )
-    );
-    if (bridalMatch) {
-      setGifGuest({
-        name: bridalMatch.name,
-        side: bridalMatch.side,
-        gifLink: bridalMatch.gifLink,
-      });
-      openGifModal();
-    }
-  }, [searchedOutput]);
+  // const openGifModal = () => setShowGifModal(true);
+  // const closeGifModal = () => setShowGifModal(false);
+
+  // useEffect(() => {
+  //   const bridalMatch = bridalPartyData.find((b) =>
+  //     searchedOutput.some(
+  //       (guest) => b.name.toLowerCase() === guest.guest_name.toLowerCase()
+  //     )
+  //   );
+  //   if (bridalMatch) {
+  //     setGifGuest({
+  //       name: bridalMatch.name,
+  //       side: bridalMatch.side,
+  //       gifLink: bridalMatch.gifLink,
+  //     });
+  //     openGifModal();
+  //   }
+  // }, [searchedOutput]);
 
   return (
     <div className="min-h-screen bg-[url(/assets/backgroundImg.jpg)] bg-cover bg-center">
@@ -170,9 +171,9 @@ function HomePage() {
             </button>
           </form>
         </div>
-        {showGifModal && gifGuest && (
+        {/* {showGifModal && gifGuest && (
           <GiftModal gifGuest={gifGuest} closeModal={closeGifModal} />
-        )}
+        )} */}
         {/* Search results */}
         {searchedOutput.length !== 0 && (
           <div className=" bg-white/85 rounded-lg shadow-sm px-8 py-4 mt-4 mb-16">
