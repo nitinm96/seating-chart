@@ -25,7 +25,6 @@ function AddGuestModal({ closeModal, refreshData }) {
     }
     //sanitize names so first letters of firstname and lastname are capitalized
     cleanName = CaptializeFullName(cleanName);
-
     return { cleanName, clean_table_number };
   }
 
